@@ -1,0 +1,11 @@
+c_model/lenet
+c_model/pad
+data
+sim/INCA_libs/
+sim/nWaveLog/
+sim/ncverilog.key
+
+nLint*
+*.o
+*.fsdb
+*.log

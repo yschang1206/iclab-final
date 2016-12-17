@@ -11,8 +11,8 @@ kernel_t *init_kernels(int w, int h, int d, int n, int layer)
     int i, j, k, l;
     float tmp;
 
-    snprintf(fname_wt, 20, "../etc/layer%d.wt", layer);
-    snprintf(fname_bs, 20, "../etc/layer%d.bs", layer);
+    snprintf(fname_wt, 20, "etc/layer%d.wt", layer);
+    snprintf(fname_bs, 20, "etc/layer%d.bs", layer);
     fp_wt = fopen(fname_wt, "r");
     if (fp_wt == NULL) {
         fprintf(stderr, "fail opening %s\n", fname_wt);
@@ -109,8 +109,8 @@ kernel_t *init_kernels_fc(int w, int h, int d, int n, int layer)
     int i, j, k, l;
     float tmp;
 
-    snprintf(fname_wt, 20, "../etc/layer%d.wt", layer);
-    snprintf(fname_bs, 20, "../etc/layer%d.bs", layer);
+    snprintf(fname_wt, 20, "etc/layer%d.wt", layer);
+    snprintf(fname_bs, 20, "etc/layer%d.bs", layer);
     fp_wt = fopen(fname_wt, "r");
     if (fp_wt == NULL) {
         fprintf(stderr, "fail opening %s\n", fname_wt);

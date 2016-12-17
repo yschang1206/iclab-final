@@ -1,11 +1,42 @@
 #include "includes.h"
 
+void print_readmemh_format(int32_t n, FILE *fp)
+{
+    uint8_t *tmp = (uint8_t *)&n;
+
+    fprintf(fp, "%.2x%.2x_%.2x%.2x\n", tmp[3], tmp[2], tmp[1], tmp[0]);
+}
+
 void print_fmap_size(int layer, fmap_t *fmap)
 {
     printf("***** Layer %d *****\n", layer);
     printf("w: %d\n", fmap->w);
     printf("h: %d\n", fmap->h);
     printf("d: %d\n", fmap->d);
+}
+
+void print_knl_data(kernel_t *knls, int num_knl)
+{
+    int i, j, k, l;
+    int p;
+    kernel_t *knl;
+    FILE *fp;
+
+    fp = fopen("../data/weights.dat", "w");
+    if (fp == NULL) {
+        fprintf(stderr, "fail opening ../data/weights.dat\n");
+        exit(1);
+    }
+    for (i = 0; i < num_knl; i++) {
+        knl = &knls[i];
+        for (j = 0; j < knl->d; j++)
+            for (k = 0; k < knl->h; k++)
+                for (l = 0; l < knl->w; l++) {
+                    p = DT_3TO1(l, k, j, knl->w, knl->h);
+                    print_readmemh_format(knl->weights[p], fp);
+                }
+    }
+    fclose(fp);
 }
 
 void print_fmap_data(fmap_t *fmap)
@@ -62,6 +93,7 @@ int main(int argc, char *argv[])
     l = 0;
     /* initialize kernels and image data */
     knls = init_kernels(w_knl, h_knl, d, n, l);
+    print_knl_data(knls, n);
     ifmap = init_fmap(w_fmap, h_fmap, d);
     //print_fmap_size(0, ifmap);
     load_img(ifmap, argv[1], w_fmap, h_fmap);
