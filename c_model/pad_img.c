@@ -1,13 +1,13 @@
 /**
- * pad.c
+ * pad_img.c
  */
 #include <stdio.h>
 #include <stdlib.h>
-#define KNL_AREA 32
-#define KNL_DEPTH 16
-#define KNL_NUM 16
+#define FMAP_WIDTH 32
+#define FMAP_HEIGHT 32
+#define FMAP_DEPTH 16
 
-int mem_addr = 0;
+int mem_addr = 3072;
 
 void add_pad(int n, FILE *fp)
 {
@@ -19,11 +19,11 @@ int main(int argc, char *argv[])
 {
     char buf[16];
     FILE *fp_in, *fp_out;
-    int area, depth;
-    int cur_area = 0, cur_depth = 0;
+    int width, height;
+    int cur_width = 0, cur_height = 0;
 
-    if (argc != 6) {
-        fprintf(stderr, "usage: ./pad input_file output_file w h d\n");
+    if (argc != 5) {
+        fprintf(stderr, "usage: ./pad_img input_file output_file w h\n");
         exit(1);
     }
 
@@ -39,19 +39,20 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    area = atoi(argv[3]) * atoi(argv[4]);
-    depth = atoi(argv[5]);
+    fprintf(fp_out, "@%x\n", mem_addr);
+    width = atoi(argv[3]);
+    height = atoi(argv[4]);
     while (fgets(buf, 16, fp_in) != NULL) {
         mem_addr++;
         fputs(buf, fp_out);
-        cur_area++;
-        if (cur_area == area) {
-            add_pad(KNL_AREA - area, fp_out);
-            cur_area = 0;
-            cur_depth++;
-            if (cur_depth == depth) {
-                add_pad((KNL_DEPTH - depth) * KNL_AREA, fp_out);
-                cur_depth = 0;
+        cur_width++;
+        if (cur_width == width) {
+            add_pad(FMAP_WIDTH - width, fp_out);
+            cur_width = 0;
+            cur_height++;
+            if (cur_height == height) {
+                add_pad((FMAP_HEIGHT - height) * FMAP_WIDTH, fp_out);
+                cur_height = 0;
             }
         }
     }

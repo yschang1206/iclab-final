@@ -5,7 +5,7 @@
 module test_dram;
 
 parameter CYCLE = 10;
-parameter END_CYCLE = 300;
+parameter END_CYCLE = 40000;
 parameter DATA_WIDTH = 32;
 parameter ADDR_WIDTH = 18;
 
@@ -13,6 +13,7 @@ reg clk;
 reg srstn;
 reg en_conv;
 wire dram_en_wr, dram_en_rd;
+wire done;
 wire [ADDR_WIDTH - 1:0] dram_addr_wr, dram_addr_rd;
 wire [DATA_WIDTH - 1:0] dram_data_wr, dram_data_rd;
 
@@ -39,7 +40,8 @@ conv_layer conv_layer(
   .addr_in(dram_addr_rd),
   .addr_out(dram_addr_wr),
   .dram_en_wr(dram_en_wr),
-  .dram_en_rd(dram_en_rd)
+  .dram_en_rd(dram_en_rd),
+  .done(done)
 );
 
 always #(CYCLE / 2) clk = ~clk;
@@ -54,6 +56,9 @@ initial begin
   @(negedge clk);
   srstn = 1;
   @(negedge clk);
+  //dram_0.init;
+  //$display("%d ns: DRAM initialization finish", $time);
+  //@(negedge clk);
   dram_0.data2dram;
   $display("%d ns: Read input data finish", $time);
   /* one pulse enable */
@@ -65,6 +70,10 @@ end
 
 /* result checker */
 initial begin
+  wait(srstn == 0);
+  wait(srstn == 1);
+  wait(done == 1);
+  dram_0.print_result(4096, 28, 28, 6);
 end
 
 /* watch dog */

@@ -1,9 +1,12 @@
 c_model/lenet
 c_model/pad
+c_model/pad_img
+c_model/pad_knl
 data
 sim/INCA_libs/
 sim/nWaveLog/
 sim/ncverilog.key
+sim/novas.rc
 
 nLint*
 *.o

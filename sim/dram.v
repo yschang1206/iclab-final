@@ -6,12 +6,7 @@ module dram
 (
   parameter DATA_WIDTH = 32,
   parameter ADDR_WIDTH = 18,
-  parameter DELAY_CYCLE = 1,
-
-  parameter WEIGHT_START_ADDR = 0,
-  parameter WEIGHT_END_ADDR = 16383,
-  parameter PAT_START_ADDR = 0,
-  parameter PAT_END_ADDR = 0
+  parameter DELAY_CYCLE = 1
 )
 (
   input clk,
@@ -29,6 +24,8 @@ module dram
 
 // Declare the RAM variable
 reg [DATA_WIDTH-1:0] data [0:2**ADDR_WIDTH-1];
+reg [DATA_WIDTH-1:0] bias [0:5];
+integer i;
 
 // Port A for write
 always @(posedge clk) begin
@@ -61,12 +58,35 @@ dram dram_0(
 );
 */
 
+/* initialize dram */
+initial begin
+  for (i = 0; i < 2**ADDR_WIDTH; i = i + 1)
+    data[i] = 0;
+end
+
 // use task in top_tb.v ->  dram_0.data2dram;
 task data2dram;
-  begin
-    $readmemh("../data/weights.dat", data, WEIGHT_START_ADDR, WEIGHT_END_ADDR);
-    //$readmemh("pattern.dat", data, PAT_START_ADDR, PAT_END_ADDR);
-  end
+begin
+  $readmemh("../data/weights.dat", data);
+  $readmemh("../data/img.dat", data);
+end
+endtask
+
+task print_result;
+input [ADDR_WIDTH - 1:0] base;
+input [4:0] width;
+input [4:0] height;
+input [4:0] depth;
+integer i, j, k;
+begin
+  //$readmemh("../data/biases.dat", bias);
+  //for (i = 0; i < depth; i = i + 1)
+    //for (j = 0; j < height; j = j + 1)
+  for (i = 0; i < 2; i = i + 1)
+    for (j = 0; j < 2; j = j + 1)
+      for (k = 0; k < width; k = k + 1)
+        $display("%x", data[base + i * 1024 + j * 32 + k]);
+end
 endtask
 
 endmodule

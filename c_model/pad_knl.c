@@ -1,5 +1,5 @@
 /**
- * pad.c
+ * pad_knl.c
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     int cur_area = 0, cur_depth = 0;
 
     if (argc != 6) {
-        fprintf(stderr, "usage: ./pad input_file output_file w h d\n");
+        fprintf(stderr, "usage: ./pad_knl input_file output_file w h d\n");
         exit(1);
     }
 
@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    fprintf(fp_out, "@%x\n", mem_addr);
     area = atoi(argv[3]) * atoi(argv[4]);
     depth = atoi(argv[5]);
     while (fgets(buf, 16, fp_in) != NULL) {

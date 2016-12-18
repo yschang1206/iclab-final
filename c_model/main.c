@@ -1,5 +1,15 @@
 #include "includes.h"
 
+/* global variables */
+int mem_addr = 0;
+FILE *fp_all;
+
+void add_pad(int n, FILE *fp)
+{
+    mem_addr += n;
+    fprintf(fp, "@%x\n", mem_addr);
+}
+
 void print_readmemh_format(int32_t n, FILE *fp)
 {
     uint8_t *tmp = (uint8_t *)&n;
@@ -42,13 +52,21 @@ void print_knl_data(kernel_t *knls, int num_knl)
 void print_fmap_data(fmap_t *fmap)
 {
     int i, j, k;
+    int p;
+    FILE *fp;
 
+    fp = fopen("../data/img.dat", "w");
+    if (fp == NULL) {
+        fprintf(stderr, "fail opening ../data/img.dat\n");
+        exit(1);
+    }
     for (i = 0; i < fmap->d; i++)
         for (j = 0; j < fmap->h; j++)
             for (k = 0; k < fmap->w; k++) {
-                printf("%d, ", fmap->data[DT_3TO1(k, j, i, fmap->w, fmap->h)]);
+                p = DT_3TO1(k, j, i, fmap->w, fmap->h);
+                print_readmemh_format(fmap->data[p], fp);
             }
-    printf("\n");
+    fclose(fp);
 }
 
 void print_result(fmap_t *fmap)
@@ -97,7 +115,7 @@ int main(int argc, char *argv[])
     ifmap = init_fmap(w_fmap, h_fmap, d);
     //print_fmap_size(0, ifmap);
     load_img(ifmap, argv[1], w_fmap, h_fmap);
-    //print_fmap_data(ifmap);
+    print_fmap_data(ifmap);
     /* convolution layer */
     ofmap = conv(knls, ifmap, n);
     /* free obsolete objects */
