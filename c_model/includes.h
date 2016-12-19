@@ -40,8 +40,8 @@ typedef struct {
 #define DIM_IN(x, y, z, w, h) ((x) + (y) * (w) + (z) * (w) * (h))
 #define DIM_OUT(x, y, n, w, h) ((x) + (y) * (w) + (n) * (w) * (h))
 #define DT_3TO1(x, y, z, w, h) ((x) + (y) * (w) + (z) * (w) * (h))
-#define AMP_RATIO 16384 // 2^16
-#define ROUND_OFF 16384 // 2^16
+#define AMP_RATIO 65536 // 2^16
+#define ROUND_OFF 65536 // 2^16
 
 kernel_t *init_kernels(int w, int h, int d, int n, int layer);
 kernel_t *init_kernels_fc(int w, int h, int d, int n, int layer);

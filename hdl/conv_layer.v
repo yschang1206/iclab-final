@@ -16,6 +16,7 @@ module conv_layer
   input clk,
   input srstn,
   input enable,
+  input dram_valid,
   input [DATA_WIDTH - 1:0] data_in,
   output [DATA_WIDTH - 1:0] data_out,
   output reg [ADDR_WIDTH - 1:0] addr_in,
@@ -35,23 +36,23 @@ localparam  ST_IDLE = 3'd0,
 
 /* global wires, registers and integers */
 integer i, j;
-reg [2:0] state, state_nx;
+reg [2:0] state, state_nx, state_ff;
 wire knl_wts_last, knl_id_last;
 wire ifmap_delta_x_last, ifmap_delta_y_last;
 wire ifmap_base_x_last, ifmap_base_y_last;
 wire ifmap_chnl_last;
 wire ofmap_chnl_last;
+wire ofmap_chnl_ff_last;
 // delay one cycle for data to be loaded in reg files
 reg ld_knls_to_ld_ifmap_full_ff;
 reg ld_ifmap_full_to_ld_conv_ff;
 reg ld_ifmap_part_to_ld_conv_ff;
-// delay two cycles to read and write psum of output feature map
-reg conv_to_next_ff[1:0];
-reg [ADDR_WIDTH - 1:0] addr_in_ff[0:1];
+// delay one cycles to read and write psum of output feature map
+reg [ADDR_WIDTH - 1:0] addr_in_ff;
 
 /* wires and registers for kernels */
 reg [DATA_WIDTH - 1:0] knls[0:KNL_MAXNUM - 1][0:KNL_SIZE - 1];
-reg [6:0] cnt_knl_id, cnt_knl_id_nx;      // kernel id
+reg [4:0] cnt_knl_id, cnt_knl_id_nx;      // kernel id
 reg [4:0] cnt_knl_chnl, cnt_knl_chnl_nx;  // kernel channel
 reg [4:0] cnt_knl_wts, cnt_knl_wts_nx;    // kernel weights
 
@@ -62,15 +63,18 @@ reg [5:0] cnt_ifmap_base_x, cnt_ifmap_base_x_nx;
 reg [5:0] cnt_ifmap_base_y, cnt_ifmap_base_y_nx;
 reg [2:0] cnt_ifmap_delta_x, cnt_ifmap_delta_x_nx;
 reg [2:0] cnt_ifmap_delta_y, cnt_ifmap_delta_y_nx;
+reg [2:0] cnt_ifmap_delta_y_ff;
 
 /* wires and registers for output feature map */
-reg [DATA_WIDTH - 1:0] macs;
+reg [DATA_WIDTH - 1:0] mac;
 reg [4:0] cnt_ofmap_chnl, cnt_ofmap_chnl_nx;  // output channel
-reg [4:0] cnt_ofmap_chnl_ff[0:1];
-reg [2 * DATA_WIDTH - 1:0] product;
+reg [4:0] cnt_ofmap_chnl_ff;
+//reg [2 * DATA_WIDTH - 1:0] products[0:KNL_HEIGHT - 1][0:KNL_WIDTH - 1];
+reg [DATA_WIDTH - 1:0] products[0:KNL_HEIGHT - 1][0:KNL_WIDTH - 1];
+reg [DATA_WIDTH - 1:0] products_roff[0:KNL_HEIGHT - 1][0:KNL_WIDTH - 1];
 
 // TODO: read parameter from dram
-wire [6:0] num_knls = 7'd6;
+wire [4:0] num_knls = 5'd6;
 wire [4:0] depth = 1;
 wire [5:0] ifmap_width = 6'd32;
 wire [5:0] ifmap_height = 6'd32;
@@ -84,13 +88,14 @@ assign cnt_ifmap_chnl = cnt_knl_chnl;
 
 /* event flags */
 assign knl_wts_last = (cnt_knl_wts == KNL_SIZE - 1);
-assign knl_id_last = (cnt_knl_id == num_knls - 7'd1);
+assign knl_id_last = (cnt_knl_id == num_knls - 5'd1);
 assign ifmap_delta_x_last = (cnt_ifmap_delta_x == KNL_WIDTH - 1);
 assign ifmap_delta_y_last = (cnt_ifmap_delta_y == KNL_HEIGHT - 1);
 assign ifmap_base_x_last = (cnt_ifmap_base_x == ifmap_width - KNL_WIDTH);
 assign ifmap_base_y_last = (cnt_ifmap_base_y == ifmap_height - KNL_HEIGHT);
 assign ifmap_chnl_last = (cnt_ifmap_chnl == ifmap_depth - 1);
-assign ofmap_chnl_last = (cnt_ofmap_chnl == num_knls - 7'd1);
+assign ofmap_chnl_last = (cnt_ofmap_chnl == num_knls - 5'd1);
+assign ofmap_chnl_ff_last = (cnt_ofmap_chnl_ff == num_knls - 5'd1);
 
 /* delayed registers */
 always@(posedge clk) begin
@@ -104,7 +109,7 @@ always@(posedge clk) begin
   if (~srstn)
     ld_ifmap_full_to_ld_conv_ff <= 0;
   else
-    ld_ifmap_full_to_ld_conv_ff <= ifmap_delta_x_last * ifmap_delta_y_last;
+    ld_ifmap_full_to_ld_conv_ff <= ifmap_delta_x_last & ifmap_delta_y_last;
 end
 
 always@(posedge clk) begin
@@ -115,36 +120,31 @@ always@(posedge clk) begin
 end
 
 always@(posedge clk) begin
-  if (~srstn) begin
-    conv_to_next_ff[0] <= 0;
-    conv_to_next_ff[1] <= 0;
-  end
-  else begin
-    conv_to_next_ff[0] <= ofmap_chnl_last;
-    conv_to_next_ff[1] <= conv_to_next_ff[0];
-  end
+  if (~srstn)
+    addr_in_ff <= 0;
+  else 
+    addr_in_ff <= addr_in;
 end
 
 always@(posedge clk) begin
-  if (~srstn) begin
-    addr_in_ff[0] <= 0;
-    addr_in_ff[1] <= 0;
-  end
-  else begin
-    addr_in_ff[0] <= addr_in;
-    addr_in_ff[1] <= addr_in_ff[0];
-  end
+  if (~srstn)
+    cnt_ofmap_chnl_ff <= 0;
+  else
+    cnt_ofmap_chnl_ff <= cnt_ofmap_chnl;
 end
 
 always@(posedge clk) begin
-  if (~srstn) begin
-    cnt_ofmap_chnl_ff[0] <= 0;
-    cnt_ofmap_chnl_ff[1] <= 0;
-  end
-  else begin
-    cnt_ofmap_chnl_ff[0] <= cnt_ofmap_chnl;
-    cnt_ofmap_chnl_ff[1] <= cnt_ofmap_chnl_ff[0];
-  end
+  if (~srstn)
+    cnt_ifmap_delta_y_ff <= 0;
+  else
+    cnt_ifmap_delta_y_ff <= cnt_ifmap_delta_y;
+end
+
+always@(posedge clk) begin
+  if (~srstn)
+    state_ff <= 0;
+  else
+    state_ff <= state;
 end
 
 /* finite state machine */
@@ -162,16 +162,19 @@ always@(*) begin
   ST_IDLE: state_nx = (enable) ? ST_LD_KNLS : ST_IDLE;
 
   ST_LD_KNLS: state_nx = 
-    (ld_knls_to_ld_ifmap_full_ff) ? ST_LD_IFMAP_FULL : ST_LD_KNLS;
+    //(ld_knls_to_ld_ifmap_full_ff) ? ST_LD_IFMAP_FULL : ST_LD_KNLS;
+    (knl_wts_last & knl_id_last) ? ST_LD_IFMAP_FULL : ST_LD_KNLS;
 
   ST_LD_IFMAP_FULL: state_nx = 
-    (ld_ifmap_full_to_ld_conv_ff) ? ST_CONV : ST_LD_IFMAP_FULL;
+    //(ld_ifmap_full_to_ld_conv_ff) ? ST_CONV : ST_LD_IFMAP_FULL;
+    (ifmap_delta_x_last & ifmap_delta_y_last) ? ST_CONV : ST_LD_IFMAP_FULL;
 
   ST_LD_IFMAP_PART: state_nx = 
-    (ld_ifmap_part_to_ld_conv_ff) ? ST_CONV : ST_LD_IFMAP_PART;
+    //(ld_ifmap_part_to_ld_conv_ff) ? ST_CONV : ST_LD_IFMAP_PART;
+    (ifmap_delta_y_last) ? ST_CONV : ST_LD_IFMAP_PART;
 
   ST_CONV: state_nx =
-    (~conv_to_next_ff[1]) ? ST_CONV :
+    (~ofmap_chnl_ff_last) ? ST_CONV :
     (~ifmap_base_x_last) ? ST_LD_IFMAP_PART :
     (~ifmap_base_y_last) ? ST_LD_IFMAP_FULL :
     (~ifmap_chnl_last) ? ST_LD_KNLS : ST_DONE;
@@ -185,20 +188,20 @@ always@(*) begin
   /* output logic: input memory address translator */
   case (state)
   ST_LD_KNLS: addr_in = wts_base + {
-    cnt_knl_id[6:0], cnt_knl_chnl[3:0], cnt_knl_wts[4:0]};
+    cnt_knl_id[3:0], cnt_knl_chnl[3:0], cnt_knl_wts[4:0]};
 
   ST_LD_IFMAP_FULL: addr_in = ifmap_base + {
     cnt_ifmap_chnl[3:0], 
-    cnt_ifmap_base_x[4:0] + {2'd0, cnt_ifmap_delta_x[2:0]}, 
-    cnt_ifmap_base_y[4:0] + {2'd0, cnt_ifmap_delta_y[2:0]}};
+    cnt_ifmap_base_y[4:0] + {2'd0, cnt_ifmap_delta_y[2:0]},
+    cnt_ifmap_base_x[4:0] + {2'd0, cnt_ifmap_delta_x[2:0]}}; 
 
   ST_LD_IFMAP_PART: addr_in = ifmap_base + {
     cnt_ifmap_chnl[3:0], 
-    cnt_ifmap_base_x[4:0] + {2'd0, cnt_ifmap_delta_x[2:0]}, 
-    cnt_ifmap_base_y[4:0] + {2'd0, cnt_ifmap_delta_y[2:0]}};
+    cnt_ifmap_base_y[4:0] + {2'd0, cnt_ifmap_delta_y[2:0]},
+    cnt_ifmap_base_x[4:0] + {2'd0, cnt_ifmap_delta_x[2:0]}}; 
 
   ST_CONV: addr_in = ofmap_base + {
-    cnt_ofmap_chnl[3:0], cnt_ifmap_base_x[4:0], cnt_ifmap_base_y[4:0]};
+    cnt_ofmap_chnl[3:0], cnt_ifmap_base_y[4:0], cnt_ifmap_base_x[4:0]};
 
   default: addr_in = 0;
   endcase
@@ -207,7 +210,7 @@ end
 always@(*) begin
   /* output logic: output memory address translator */
   case (state)
-  ST_CONV: addr_out = addr_in_ff[1];
+  ST_CONV: addr_out = addr_in_ff;
   default: addr_out = 0;
   endcase
 end
@@ -228,7 +231,7 @@ always@(*) begin
     dram_en_rd = 1;
   end
   ST_CONV: begin
-    dram_en_wr = 1;
+    dram_en_wr = (state_ff == ST_CONV) ? 1 : 0;
     dram_en_rd = 1;
   end
   default: begin
@@ -242,15 +245,23 @@ end
 assign done = (state == ST_DONE);
 
 /* convolution process */
-assign data_out = data_in + macs;
+assign data_out = data_in + mac;
 
 always@(*) begin
-  macs = 0;
   for (i = 0; i < KNL_HEIGHT; i = i + 1)
     for (j = 0; j < KNL_WIDTH; j = j + 1) begin
-      product = knls[cnt_ofmap_chnl_ff[1]][i * KNL_HEIGHT + j] * ifmap[i][j];
-      macs = macs + {{16{product[63]}}, product[63:48]};
+      //products[i][j] = knls[num_knls - cnt_ofmap_chnl_ff - 1][i * KNL_HEIGHT + j] * ifmap[i][j];
+      //mac = mac + {{16{products[i][j][ADDR_WIDTH - 1]}}, products[i][j][ADDR_WIDTH - 1:16]};
+      products[i][j] = knls[num_knls - cnt_ofmap_chnl_ff - 1][i * KNL_WIDTH + j] * ifmap[i][j];
+      products_roff[i][j] = {{16{products[i][j][DATA_WIDTH - 1]}}, products[i][j][DATA_WIDTH - 1:16]};
     end
+end
+
+always@(*) begin
+  mac = 0;
+  for (i = 0; i < KNL_HEIGHT; i = i + 1)
+    for (j = 0; j < KNL_WIDTH; j = j + 1)
+      mac = mac + products_roff[i][j];
 end
 
 /* weight register file */
@@ -260,13 +271,13 @@ always@(posedge clk) begin
       for (j = 0; j < KNL_SIZE; j = j + 1)
         knls[i][j] <= 0;
   else begin
-    if (state == ST_LD_KNLS) begin
-      knls[0][0] <= data_in;
+    if (state_ff == ST_LD_KNLS) begin
+      knls[0][KNL_SIZE - 1] <= data_in;
       for (i = 1; i < KNL_MAXNUM; i = i + 1)
-        knls[i][0] <= knls[i - 1][KNL_SIZE - 1];
+        knls[i][KNL_SIZE - 1] <= knls[i - 1][0];
       for (i = 0; i < KNL_MAXNUM; i = i + 1)
-        for (j = 1; j < KNL_SIZE; j = j + 1)
-          knls[i][j] <= knls[i][j - 1];
+        for (j = 0; j < KNL_SIZE - 1; j = j + 1)
+          knls[i][j] <= knls[i][j + 1];
     end
   end
 end
@@ -278,12 +289,12 @@ always@(posedge clk) begin
       for (j = 0; j < KNL_WIDTH; j = j + 1)
         ifmap[i][j] <= 0;
   else
-    if (state == ST_LD_IFMAP_FULL | state == ST_LD_IFMAP_PART)
+    if (state_ff == ST_LD_IFMAP_FULL | state_ff == ST_LD_IFMAP_PART)
       for (i = 0; i < KNL_HEIGHT; i = i + 1)
-        if (cnt_ifmap_delta_y == i) begin
-          ifmap[i][0] <= data_in;
-          for (j = 1; j < KNL_WIDTH; j = j + 1)
-            ifmap[i][j] <= ifmap[i][j - 1];
+        if (cnt_ifmap_delta_y_ff == i) begin
+          ifmap[i][KNL_WIDTH - 1] <= data_in;
+          for (j = 0; j < KNL_WIDTH - 1; j = j + 1)
+            ifmap[i][j] <= ifmap[i][j + 1];
         end
 end
 
@@ -340,7 +351,7 @@ always@(*) begin
       if (knl_id_last)
         cnt_knl_id_nx = 0;
       else
-        cnt_knl_id_nx = cnt_knl_id + 7'd1;
+        cnt_knl_id_nx = cnt_knl_id + 5'd1;
     else
       cnt_knl_id_nx = cnt_knl_id;
   else
@@ -432,7 +443,10 @@ end
 
 always@(*) begin
   if (state == ST_CONV)
-    cnt_ofmap_chnl_nx = cnt_ofmap_chnl + 1;
+    if (ofmap_chnl_last)
+      cnt_ofmap_chnl_nx = 0;
+    else
+      cnt_ofmap_chnl_nx = cnt_ofmap_chnl + 1;
   else
     cnt_ofmap_chnl_nx = 0;
 end

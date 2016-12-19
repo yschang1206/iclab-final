@@ -30,34 +30,41 @@ void print_knl_data(kernel_t *knls, int num_knl)
     int i, j, k, l;
     int p;
     kernel_t *knl;
-    FILE *fp;
+    FILE *fp_wt, *fp_bs;
 
-    fp = fopen("../data/weights.dat", "w");
-    if (fp == NULL) {
-        fprintf(stderr, "fail opening ../data/weights.dat\n");
+    fp_wt = fopen("../data/weights.dat.unpad", "w");
+    if (fp_wt == NULL) {
+        fprintf(stderr, "fail opening ../data/weights.dat.unpad\n");
+        exit(1);
+    }
+    fp_bs = fopen("../data/biases.dat.unpad", "w");
+    if (fp_bs == NULL) {
+        fprintf(stderr, "fail opening ../data/biases.dat.unpad\n");
         exit(1);
     }
     for (i = 0; i < num_knl; i++) {
         knl = &knls[i];
+        print_readmemh_format(knl->bias, fp_bs);
         for (j = 0; j < knl->d; j++)
             for (k = 0; k < knl->h; k++)
                 for (l = 0; l < knl->w; l++) {
                     p = DT_3TO1(l, k, j, knl->w, knl->h);
-                    print_readmemh_format(knl->weights[p], fp);
+                    print_readmemh_format(knl->weights[p], fp_wt);
                 }
     }
-    fclose(fp);
+    fclose(fp_wt);
+    fclose(fp_bs);
 }
 
-void print_fmap_data(fmap_t *fmap)
+void print_fmap_data(fmap_t *fmap, char *fname)
 {
     int i, j, k;
     int p;
     FILE *fp;
 
-    fp = fopen("../data/img.dat", "w");
+    fp = fopen(fname, "w");
     if (fp == NULL) {
-        fprintf(stderr, "fail opening ../data/img.dat\n");
+        fprintf(stderr, "fail opening %s\n", fname);
         exit(1);
     }
     for (i = 0; i < fmap->d; i++)
@@ -115,7 +122,7 @@ int main(int argc, char *argv[])
     ifmap = init_fmap(w_fmap, h_fmap, d);
     //print_fmap_size(0, ifmap);
     load_img(ifmap, argv[1], w_fmap, h_fmap);
-    print_fmap_data(ifmap);
+    print_fmap_data(ifmap, "../data/img.dat.unpad");
     /* convolution layer */
     ofmap = conv(knls, ifmap, n);
     /* free obsolete objects */
@@ -123,7 +130,7 @@ int main(int argc, char *argv[])
     free_fmap(ifmap);
     ifmap = ofmap;
     //print_fmap_size(1, ofmap);
-    //print_fmap_data(ofmap);
+    print_fmap_data(ofmap, "../data/out0.dat");
 
     /* layer 1: max pooling */
     /* maxpooling layer */

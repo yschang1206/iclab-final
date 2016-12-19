@@ -13,6 +13,7 @@ reg clk;
 reg srstn;
 reg en_conv;
 wire dram_en_wr, dram_en_rd;
+wire dram_valid;
 wire done;
 wire [ADDR_WIDTH - 1:0] dram_addr_wr, dram_addr_rd;
 wire [DATA_WIDTH - 1:0] dram_data_wr, dram_data_rd;
@@ -26,7 +27,7 @@ dram dram_0(
   .data_in(dram_data_wr),
   .en_rd(dram_en_rd),
   .addr_rd(dram_addr_rd),
-  .valid(valid),
+  .valid(dram_valid),
   .data_out(dram_data_rd)
 );
 
@@ -35,6 +36,7 @@ conv_layer conv_layer(
   .clk(clk),
   .srstn(srstn),
   .enable(en_conv),
+  .dram_valid(dram_valid),
   .data_in(dram_data_rd),
   .data_out(dram_data_wr),
   .addr_in(dram_addr_rd),

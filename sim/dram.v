@@ -79,13 +79,13 @@ input [4:0] height;
 input [4:0] depth;
 integer i, j, k;
 begin
-  //$readmemh("../data/biases.dat", bias);
+  $readmemh("../data/biases.dat.unpad", bias);
   //for (i = 0; i < depth; i = i + 1)
     //for (j = 0; j < height; j = j + 1)
-  for (i = 0; i < 2; i = i + 1)
-    for (j = 0; j < 2; j = j + 1)
+  for (i = 0; i < 1; i = i + 1)
+    for (j = 0; j < 6; j = j + 1)
       for (k = 0; k < width; k = k + 1)
-        $display("%x", data[base + i * 1024 + j * 32 + k]);
+        $display("%x", data[base + i * 1024 + j * 32 + k] + bias[i]);
 end
 endtask
 
