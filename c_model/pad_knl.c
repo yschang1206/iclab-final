@@ -22,8 +22,8 @@ int main(int argc, char *argv[])
     int area, depth;
     int cur_area = 0, cur_depth = 0;
 
-    if (argc != 4) {
-        fprintf(stderr, "usage: ./pad_knl input_file output_file d\n");
+    if (argc != 5) {
+        fprintf(stderr, "usage: ./pad_knl input_file output_file d base_addr\n");
         exit(1);
     }
 
@@ -39,9 +39,10 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    fprintf(fp_out, "@%x\n", mem_addr);
     area = 25;
     depth = atoi(argv[3]);
+    mem_addr = atoi(argv[4]);
+    fprintf(fp_out, "@%x\n", mem_addr);
     while (fgets(buf, 16, fp_in) != NULL) {
         mem_addr++;
         fputs(buf, fp_out);

@@ -24,7 +24,6 @@ module dram
 
 // Declare the RAM variable
 reg [DATA_WIDTH-1:0] data [0:2**ADDR_WIDTH-1];
-reg [DATA_WIDTH-1:0] bias [0:5];
 integer i;
 
 // Port A for write
@@ -67,8 +66,8 @@ end
 // use task in top_tb.v ->  dram_0.data2dram;
 task data2dram;
 begin
-  $readmemh("../data/weights.dat", data);
-  $readmemh("../data/img.dat", data);
+  $readmemh("../data/l2.wt", data);
+  $readmemh("../data/out1.dat", data);
 end
 endtask
 
@@ -77,15 +76,29 @@ input [ADDR_WIDTH - 1:0] base;
 input [4:0] width;
 input [4:0] height;
 input [4:0] depth;
-integer i, j, k;
+integer i, j, k, p, n;
+reg [DATA_WIDTH-1:0] ans;
+reg [DATA_WIDTH-1:0] bias [0:15];
+reg [DATA_WIDTH-1:0] golden [0:1599];
 begin
-  $readmemh("../data/biases.dat.unpad", bias);
-  //for (i = 0; i < depth; i = i + 1)
-    //for (j = 0; j < height; j = j + 1)
-  for (i = 0; i < 1; i = i + 1)
-    for (j = 0; j < 6; j = j + 1)
-      for (k = 0; k < width; k = k + 1)
-        $display("%x", data[base + i * 1024 + j * 32 + k] + bias[i]);
+  $readmemh("../data/l2.bs.unpad", bias);
+  $readmemh("../data/out2.dat.unpad", golden);
+  n = 0;
+  for (i = 0; i < depth; i = i + 1)
+    for (j = 0; j < height; j = j + 1)
+      for (k = 0; k < width; k = k + 1) begin
+        p = base + i * 1024 + j * 32 + k;
+        ans = data[p] + bias[i];
+        if (ans[DATA_WIDTH - 1] == 1'b1)
+          ans = 0;
+        if ((ans - golden[n]) < 2 | (golden[n] - ans) < 2)
+          $display("%d: %x === %x", n, ans, golden[n]);
+        else begin
+          $display("%d: %x !== %x", n, ans, golden[n]);
+          $finish;
+        end
+        n = n + 1;
+      end
 end
 endtask
 

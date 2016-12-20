@@ -7,7 +7,7 @@
 #define FMAP_HEIGHT 32
 #define FMAP_DEPTH 16
 
-int mem_addr = 3072;
+int mem_addr = 0;
 
 void add_pad(int n, FILE *fp)
 {
@@ -22,8 +22,8 @@ int main(int argc, char *argv[])
     int width, height;
     int cur_width = 0, cur_height = 0;
 
-    if (argc != 5) {
-        fprintf(stderr, "usage: ./pad_img input_file output_file w h\n");
+    if (argc != 6) {
+        fprintf(stderr, "usage: ./pad_img input_file output_file w h base_addr\n");
         exit(1);
     }
 
@@ -39,9 +39,10 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    fprintf(fp_out, "@%x\n", mem_addr);
     width = atoi(argv[3]);
     height = atoi(argv[4]);
+    mem_addr = atoi(argv[5]);
+    fprintf(fp_out, "@%x\n", mem_addr);
     while (fgets(buf, 16, fp_in) != NULL) {
         mem_addr++;
         fputs(buf, fp_out);

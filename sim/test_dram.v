@@ -5,7 +5,7 @@
 module test_dram;
 
 parameter CYCLE = 10;
-parameter END_CYCLE = 40000;
+parameter END_CYCLE = 40000000;
 parameter DATA_WIDTH = 32;
 parameter ADDR_WIDTH = 18;
 
@@ -75,7 +75,9 @@ initial begin
   wait(srstn == 0);
   wait(srstn == 1);
   wait(done == 1);
-  dram_0.print_result(4096, 28, 28, 6);
+  dram_0.print_result(131072, 10, 10, 16);
+  #(CYCLE);
+  $finish;
 end
 
 /* watch dog */

@@ -1,14 +1,8 @@
+/**
+ * main.c
+ */
+
 #include "includes.h"
-
-/* global variables */
-int mem_addr = 0;
-FILE *fp_all;
-
-void add_pad(int n, FILE *fp)
-{
-    mem_addr += n;
-    fprintf(fp, "@%x\n", mem_addr);
-}
 
 void print_readmemh_format(int32_t n, FILE *fp)
 {
@@ -25,19 +19,22 @@ void print_fmap_size(int layer, fmap_t *fmap)
     printf("d: %d\n", fmap->d);
 }
 
-void print_knl_data(kernel_t *knls, int num_knl)
+void print_knl_data(kernel_t *knls, int num_knl, int layer)
 {
     int i, j, k, l;
     int p;
     kernel_t *knl;
     FILE *fp_wt, *fp_bs;
+    char fname_wt[64], fname_bs[64];
 
-    fp_wt = fopen("../data/weights.dat.unpad", "w");
+    sprintf(fname_wt, "../data/l%d.wt.unpad", layer);
+    sprintf(fname_bs, "../data/l%d.bs.unpad", layer);
+    fp_wt = fopen(fname_wt, "w");
     if (fp_wt == NULL) {
         fprintf(stderr, "fail opening ../data/weights.dat.unpad\n");
         exit(1);
     }
-    fp_bs = fopen("../data/biases.dat.unpad", "w");
+    fp_bs = fopen(fname_bs, "w");
     if (fp_bs == NULL) {
         fprintf(stderr, "fail opening ../data/biases.dat.unpad\n");
         exit(1);
@@ -118,9 +115,8 @@ int main(int argc, char *argv[])
     l = 0;
     /* initialize kernels and image data */
     knls = init_kernels(w_knl, h_knl, d, n, l);
-    print_knl_data(knls, n);
+    print_knl_data(knls, n, l);
     ifmap = init_fmap(w_fmap, h_fmap, d);
-    //print_fmap_size(0, ifmap);
     load_img(ifmap, argv[1], w_fmap, h_fmap);
     print_fmap_data(ifmap, "../data/img.dat.unpad");
     /* convolution layer */
@@ -129,8 +125,7 @@ int main(int argc, char *argv[])
     free_kernels(knls, n);
     free_fmap(ifmap);
     ifmap = ofmap;
-    //print_fmap_size(1, ofmap);
-    print_fmap_data(ofmap, "../data/out0.dat");
+    print_fmap_data(ofmap, "../data/out0.dat.unpad");
 
     /* layer 1: max pooling */
     /* maxpooling layer */
@@ -138,8 +133,7 @@ int main(int argc, char *argv[])
     /* free obsolete objects */
     free_fmap(ifmap);
     ifmap = ofmap;
-    //print_fmap_size(2, ofmap);
-    //print_fmap_data(ofmap);
+    print_fmap_data(ofmap, "../data/out1.dat.unpad");
 
     /* layer 2: convolution */
     w_knl = 5;
@@ -151,14 +145,15 @@ int main(int argc, char *argv[])
     l = 2;
     /* initialize kernels */
     knls = init_kernels(w_knl, h_knl, d, n, l);
+    print_knl_data(knls, n, l);
     /* convolution layer */
-    ofmap = conv_tbl(knls, ifmap, n, tbl);
+    //ofmap = conv_tbl(knls, ifmap, n, tbl);
+    ofmap = conv(knls, ifmap, n);
     /* free obsolete objects */
     free_kernels(knls, n);
     free_fmap(ifmap);
     ifmap = ofmap;
-    //print_fmap_size(3, ofmap);
-    //print_fmap_data(ofmap);
+    print_fmap_data(ofmap, "../data/out2.dat.unpad");
 
     /* layer 3: max pooling */
     /* maxpooling layer */
@@ -166,8 +161,7 @@ int main(int argc, char *argv[])
     /* free obsolete objects */
     free_fmap(ifmap);
     ifmap = ofmap;
-    //print_fmap_size(4, ofmap);
-    //print_fmap_data(ofmap);
+    print_fmap_data(ofmap, "../data/out3.dat.unpad");
 
     /* layer 4: fully-connected */
     w_knl = ifmap->w;
@@ -179,14 +173,14 @@ int main(int argc, char *argv[])
     l = 4;
     /* initialize kernels */
     knls = init_kernels(w_knl, h_knl, d, n, l);
+    print_knl_data(knls, n, l);
     /* convolution layer */
     ofmap = conv(knls, ifmap, n);
     /* free obsolete objects */
     free_kernels(knls, n);
     free_fmap(ifmap);
     ifmap = ofmap;
-    //print_fmap_size(5, ofmap);
-    //print_fmap_data(ofmap);
+    print_fmap_data(ofmap, "../data/out4.dat.unpad");
 
     /* layer 5: fully-connected */
     w_knl = ifmap->w;
@@ -198,14 +192,14 @@ int main(int argc, char *argv[])
     l = 5;
     /* initialize kernels */
     knls = init_kernels_fc(w_knl, h_knl, d, n, l);
+    print_knl_data(knls, n, l);
     /* convolution layer */
     ofmap = conv(knls, ifmap, n);
     /* free obsolete objects */
     free_kernels(knls, n);
     free_fmap(ifmap);
     ifmap = ofmap;
-    //print_fmap_size(6, ofmap);
-    //print_fmap_data(ofmap);
+    print_fmap_data(ofmap, "../data/out5.dat.unpad");
 
     print_result(ofmap);
 
