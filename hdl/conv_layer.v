@@ -244,7 +244,7 @@ assign data_out = data_in + mac;
 always@(*) begin
   for (i = 0; i < KNL_HEIGHT; i = i + 1)
     for (j = 0; j < KNL_WIDTH; j = j + 1) begin
-      products[i * KNL_WIDTH + j] = knls[(KNL_MAXNUM - num_knls + cnt_ofmap_chnl_ff) * KNL_SIZE + i * KNL_WIDTH + j] * ifmap[j * KNL_HEIGHT + i];
+      products[i * KNL_WIDTH + j] = knls[(KNL_MAXNUM[4:0] - num_knls[4:0] + {1'b0, cnt_ofmap_chnl_ff[3:0]}) * KNL_SIZE + i * KNL_WIDTH + j] * ifmap[j * KNL_HEIGHT + i];
       products_roff[i * KNL_WIDTH + j] = {{16{products[i * KNL_WIDTH + j][DATA_WIDTH - 1]}}, products[i * KNL_WIDTH + j][DATA_WIDTH - 1:16]} + products[i * KNL_WIDTH + j][DATA_WIDTH - 1];
     end
 end
