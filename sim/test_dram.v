@@ -11,7 +11,7 @@ parameter ADDR_WIDTH = 18;
 
 reg clk;
 reg srstn;
-reg en_conv;
+reg enable;
 wire dram_en_wr, dram_en_rd;
 wire dram_valid;
 wire done;
@@ -31,11 +31,10 @@ dram dram_0(
   .data_out(dram_data_rd)
 );
 
-/* convolutional layer */
-conv_layer conv_layer(
+lenet lenet(
   .clk(clk),
   .srstn(srstn),
-  .enable(en_conv),
+  .enable(enable),
   .dram_valid(dram_valid),
   .data_in(dram_data_rd),
   .data_out(dram_data_wr),
@@ -52,22 +51,19 @@ always #(CYCLE / 2) clk = ~clk;
 initial begin
   clk = 0;
   srstn = 1;
-  en_conv = 0;
+  enable = 0;
   @(negedge clk);
   srstn = 0;
   @(negedge clk);
   srstn = 1;
   @(negedge clk);
-  //dram_0.init;
-  //$display("%d ns: DRAM initialization finish", $time);
-  //@(negedge clk);
   dram_0.data2dram;
   $display("%d ns: Read input data finish", $time);
   /* one pulse enable */
   @(negedge clk);
-  en_conv = 1;
+  enable = 1;
   @(negedge clk);
-  en_conv = 0;
+  enable = 0;
 end
 
 /* result checker */

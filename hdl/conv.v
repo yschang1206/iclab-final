@@ -1,8 +1,8 @@
 /**
- * conv_layer.v
+ * conv.v
  */
 
-module conv_layer
+module conv
 #
 (
   parameter DATA_WIDTH = 32,
@@ -244,7 +244,7 @@ assign data_out = data_in + mac;
 always@(*) begin
   for (i = 0; i < KNL_HEIGHT; i = i + 1)
     for (j = 0; j < KNL_WIDTH; j = j + 1) begin
-      products[i * KNL_WIDTH + j] = knls[(KNL_MAXNUM - num_knls + cnt_ofmap_chnl_ff) * KNL_SIZE + i * KNL_WIDTH + j] * ifmap[j * KNL_HEIGHT + i];
+      products[i * KNL_WIDTH + j] = knls[(KNL_MAXNUM[4:0] - num_knls[4:0] + {1'd0, cnt_ofmap_chnl_ff[3:0]}) * KNL_SIZE + i * KNL_WIDTH + j] * ifmap[j * KNL_HEIGHT + i];
       products_roff[i * KNL_WIDTH + j] = {{16{products[i * KNL_WIDTH + j][DATA_WIDTH - 1]}}, products[i * KNL_WIDTH + j][DATA_WIDTH - 1:16]} + products[i * KNL_WIDTH + j][DATA_WIDTH - 1];
     end
 end
@@ -259,7 +259,7 @@ end
 /* weight register file */
 always@(posedge clk) begin
   if (~srstn)
-    for (i = 0; i < KNL_MAXNUM * KNL_SIZE - 1; i = i + 1)
+    for (i = 0; i < KNL_MAXNUM * KNL_SIZE; i = i + 1)
       knls[i] <= 0;
   else if (state_ff == ST_LD_KNLS) begin
     knls[KNL_MAXNUM * KNL_SIZE - 1] <= data_in;
