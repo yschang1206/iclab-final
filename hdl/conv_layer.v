@@ -50,13 +50,13 @@ reg ifmap_base_x_last_ff, ifmap_base_y_last_ff;
 reg [ADDR_WIDTH - 1:0] addr_in_ff;
 
 /* wires and registers for kernels */
-reg [DATA_WIDTH - 1:0] knls[0:KNL_MAXNUM - 1][0:KNL_SIZE - 1];
+reg [DATA_WIDTH - 1:0] knls[0:KNL_MAXNUM * KNL_SIZE - 1];
 reg [4:0] cnt_knl_id, cnt_knl_id_nx;      // kernel id
 reg [4:0] cnt_knl_chnl, cnt_knl_chnl_nx;  // kernel channel
 reg [4:0] cnt_knl_wts, cnt_knl_wts_nx;    // kernel weights
 
 /* wires and registers for input feature map */
-reg [DATA_WIDTH - 1:0] ifmap[0:KNL_HEIGHT - 1][0:KNL_WIDTH - 1];
+reg [DATA_WIDTH - 1:0] ifmap[0:KNL_SIZE - 1];
 wire [4:0] cnt_ifmap_chnl;  // equals to cnt_knl_chnl
 reg [5:0] cnt_ifmap_base_x, cnt_ifmap_base_x_nx;
 reg [5:0] cnt_ifmap_base_y, cnt_ifmap_base_y_nx;
@@ -67,9 +67,8 @@ reg [2:0] cnt_ifmap_delta_y, cnt_ifmap_delta_y_nx, cnt_ifmap_delta_y_ff;
 reg [DATA_WIDTH - 1:0] mac;
 reg [4:0] cnt_ofmap_chnl, cnt_ofmap_chnl_nx;  // output channel
 reg [4:0] cnt_ofmap_chnl_ff;
-//reg [2 * DATA_WIDTH - 1:0] products[0:KNL_HEIGHT - 1][0:KNL_WIDTH - 1];
-reg [DATA_WIDTH - 1:0] products[0:KNL_HEIGHT - 1][0:KNL_WIDTH - 1];
-reg [DATA_WIDTH - 1:0] products_roff[0:KNL_HEIGHT - 1][0:KNL_WIDTH - 1];
+reg [DATA_WIDTH - 1:0] products[0:KNL_SIZE - 1];
+reg [DATA_WIDTH - 1:0] products_roff[0:KNL_SIZE - 1];
 
 // TODO: read parameter from dram
 wire [4:0] num_knls = 5'd16;
@@ -245,10 +244,8 @@ assign data_out = data_in + mac;
 always@(*) begin
   for (i = 0; i < KNL_HEIGHT; i = i + 1)
     for (j = 0; j < KNL_WIDTH; j = j + 1) begin
-      //products[i][j] = knls[num_knls - cnt_ofmap_chnl_ff - 1][i * KNL_HEIGHT + j] * ifmap[i][j];
-      //mac = mac + {{16{products[i][j][ADDR_WIDTH - 1]}}, products[i][j][ADDR_WIDTH - 1:16]};
-      products[i][j] = knls[num_knls - cnt_ofmap_chnl_ff - 1][i * KNL_WIDTH + j] * ifmap[i][j];
-      products_roff[i][j] = {{16{products[i][j][DATA_WIDTH - 1]}}, products[i][j][DATA_WIDTH - 1:16]} + products[i][j][DATA_WIDTH - 1];
+      products[i * KNL_WIDTH + j] = knls[(KNL_MAXNUM - num_knls + cnt_ofmap_chnl_ff) * KNL_SIZE + i * KNL_WIDTH + j] * ifmap[j * KNL_HEIGHT + i];
+      products_roff[i * KNL_WIDTH + j] = {{16{products[i * KNL_WIDTH + j][DATA_WIDTH - 1]}}, products[i * KNL_WIDTH + j][DATA_WIDTH - 1:16]} + products[i * KNL_WIDTH + j][DATA_WIDTH - 1];
     end
 end
 
@@ -256,41 +253,31 @@ always@(*) begin
   mac = 0;
   for (i = 0; i < KNL_HEIGHT; i = i + 1)
     for (j = 0; j < KNL_WIDTH; j = j + 1)
-      mac = mac + products_roff[i][j];
+      mac = mac + products_roff[i * KNL_WIDTH + j];
 end
 
 /* weight register file */
 always@(posedge clk) begin
   if (~srstn)
-    for (i = 0; i < KNL_MAXNUM; i = i + 1)
-      for (j = 0; j < KNL_SIZE; j = j + 1)
-        knls[i][j] <= 0;
-  else begin
-    if (state_ff == ST_LD_KNLS) begin
-      knls[0][KNL_SIZE - 1] <= data_in;
-      for (i = 1; i < KNL_MAXNUM; i = i + 1)
-        knls[i][KNL_SIZE - 1] <= knls[i - 1][0];
-      for (i = 0; i < KNL_MAXNUM; i = i + 1)
-        for (j = 0; j < KNL_SIZE - 1; j = j + 1)
-          knls[i][j] <= knls[i][j + 1];
-    end
+    for (i = 0; i < KNL_MAXNUM * KNL_SIZE - 1; i = i + 1)
+      knls[i] <= 0;
+  else if (state_ff == ST_LD_KNLS) begin
+    knls[KNL_MAXNUM * KNL_SIZE - 1] <= data_in;
+    for (i = 0; i < KNL_MAXNUM * KNL_SIZE - 1; i = i + 1)
+      knls[i] <= knls[i + 1];
   end
 end
 
 /* input feature map register file */
 always@(posedge clk) begin
   if (~srstn)
-    for (i = 0; i < KNL_HEIGHT; i = i + 1)
-      for (j = 0; j < KNL_WIDTH; j = j + 1)
-        ifmap[i][j] <= 0;
-  else
-    if (state_ff == ST_LD_IFMAP_FULL | state_ff == ST_LD_IFMAP_PART)
-      for (i = 0; i < KNL_HEIGHT; i = i + 1)
-        if (cnt_ifmap_delta_y_ff == i) begin
-          ifmap[i][KNL_WIDTH - 1] <= data_in;
-          for (j = 0; j < KNL_WIDTH - 1; j = j + 1)
-            ifmap[i][j] <= ifmap[i][j + 1];
-        end
+    for (i = 0; i < KNL_SIZE; i = i + 1)
+        ifmap[i] <= 0;
+  else if (state_ff == ST_LD_IFMAP_FULL | state_ff == ST_LD_IFMAP_PART) begin
+    ifmap[KNL_SIZE - 1] <= data_in;
+    for (i = 0; i < KNL_SIZE - 1; i = i + 1)
+      ifmap[i] <= ifmap[i + 1];
+  end
 end
 
 /** 

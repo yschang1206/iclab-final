@@ -5,7 +5,8 @@ c_model/pad_knl
 sim/INCA_libs/
 sim/nWaveLog/
 sim/ncverilog.key
-sim/novas.rc
+sim/novas.*
+sim/signals.rc
 
 nLint*
 *.o
