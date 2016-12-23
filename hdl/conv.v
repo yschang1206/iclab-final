@@ -1,8 +1,8 @@
 /**
- * conv_layer.v
+ * conv.v
  */
 
-module conv_layer
+module conv
 #
 (
   parameter DATA_WIDTH = 32,
@@ -259,7 +259,7 @@ end
 /* weight register file */
 always@(posedge clk) begin
   if (~srstn)
-    for (i = 0; i < KNL_MAXNUM * KNL_SIZE - 1; i = i + 1)
+    for (i = 0; i < KNL_MAXNUM * KNL_SIZE; i = i + 1)
       knls[i] <= 0;
   else if (state_ff == ST_LD_KNLS) begin
     knls[KNL_MAXNUM * KNL_SIZE - 1] <= data_in;

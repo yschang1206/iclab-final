@@ -67,6 +67,7 @@ end
 task data2dram;
 begin
   $readmemh("../data/l2.wt", data);
+  $readmemh("../data/l2.bs", data);
   $readmemh("../data/out1.dat", data);
 end
 endtask
@@ -88,9 +89,7 @@ begin
     for (j = 0; j < height; j = j + 1)
       for (k = 0; k < width; k = k + 1) begin
         p = base + i * 1024 + j * 32 + k;
-        ans = data[p] + bias[i];
-        if (ans[DATA_WIDTH - 1] == 1'b1)
-          ans = 0;
+        ans = data[p];
         if ((ans - golden[n]) < 2 | (golden[n] - ans) < 2)
           $display("%d: %x === %x", n, ans, golden[n]);
         else begin

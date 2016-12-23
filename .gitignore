@@ -8,6 +8,7 @@ sim/ncverilog.key
 sim/novas.*
 sim/signals.rc
 syn/report
+sim/nlint.txt
 
 nLint*
 *.o
