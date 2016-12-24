@@ -9,6 +9,9 @@ sim/novas.*
 sim/signals.rc
 syn/report
 sim/nlint.txt
+syn/default.svf
+syn/lenet
+syn/alib-52
 
 nLint*
 *.o

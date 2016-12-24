@@ -1,7 +1,7 @@
-set TOPLEVEL "conv_layer"
+set TOPLEVEL "lenet"
 
 #change timing constraint here
-set TEST_CYCLE 6.5
+set TEST_CYCLE 8
 
 source -echo -verbose 0_readfile.tcl 
 source -echo -verbose 1_setting.tcl 

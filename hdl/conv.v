@@ -7,7 +7,7 @@ module conv
 (
   parameter DATA_WIDTH = 32,
   parameter ADDR_WIDTH = 18,
-  parameter KNL_WIDTH = 5,
+  parameter KNL_WIDTH = 5'd5,
   parameter KNL_HEIGHT = 5,
   parameter KNL_SIZE = KNL_WIDTH * KNL_HEIGHT,  // unit: 32 bits
   parameter KNL_MAXNUM = 16
@@ -71,14 +71,13 @@ reg [DATA_WIDTH - 1:0] products[0:KNL_SIZE - 1];
 reg [DATA_WIDTH - 1:0] products_roff[0:KNL_SIZE - 1];
 
 // TODO: read parameter from dram
-wire [4:0] num_knls = 5'd16;
-wire [4:0] depth = 5'd6;
-wire [5:0] ifmap_width = 6'd14;
-wire [5:0] ifmap_height = 6'd14;
-wire [4:0] ifmap_depth = 5'd6;
-wire [ADDR_WIDTH - 1:0] wts_base = 0;
-wire [ADDR_WIDTH - 1:0] ifmap_base = 65536;
-wire [ADDR_WIDTH - 1:0] ofmap_base = 131072;
+localparam num_knls = 5'd16;
+localparam ifmap_width = 6'd14;
+localparam ifmap_height = 6'd14;
+localparam ifmap_depth = 5'd6;
+localparam wts_base = 0;
+localparam ifmap_base = 18'd65536;
+localparam ofmap_base = 18'd131072;
 
 /* forwarded wires */
 assign cnt_ifmap_chnl = cnt_knl_chnl;
@@ -184,17 +183,17 @@ always@(*) begin
   ST_LD_KNLS: addr_in = wts_base + {
     cnt_knl_id[3:0], cnt_knl_chnl[3:0], cnt_knl_wts[4:0]};
 
-  ST_LD_IFMAP_FULL: addr_in = ifmap_base + {
+  ST_LD_IFMAP_FULL: addr_in = ifmap_base + {4'd0,
     cnt_ifmap_chnl[3:0], 
     cnt_ifmap_base_y[4:0] + {2'd0, cnt_ifmap_delta_y[2:0]},
     cnt_ifmap_base_x[4:0] + {2'd0, cnt_ifmap_delta_x[2:0]}}; 
 
-  ST_LD_IFMAP_PART: addr_in = ifmap_base + {
+  ST_LD_IFMAP_PART: addr_in = ifmap_base + {4'd0,
     cnt_ifmap_chnl[3:0], 
     cnt_ifmap_base_y[4:0] + {2'd0, cnt_ifmap_delta_y[2:0]},
-    cnt_ifmap_base_x[4:0] + {2'd0, cnt_ifmap_delta_x[2:0]} + KNL_WIDTH[4:0] - 5'd1};
+    cnt_ifmap_base_x[4:0] + {2'd0, cnt_ifmap_delta_x[2:0]} + KNL_WIDTH - 5'd1};
 
-  ST_CONV: addr_in = ofmap_base + {
+  ST_CONV: addr_in = ofmap_base + {4'd0,
     cnt_ofmap_chnl[3:0], cnt_ifmap_base_y[4:0], cnt_ifmap_base_x[4:0]};
 
   default: addr_in = 0;
@@ -244,8 +243,8 @@ assign data_out = data_in + mac;
 always@(*) begin
   for (i = 0; i < KNL_HEIGHT; i = i + 1)
     for (j = 0; j < KNL_WIDTH; j = j + 1) begin
-      products[i * KNL_WIDTH + j] = knls[(KNL_MAXNUM[4:0] - num_knls[4:0] + {1'b0, cnt_ofmap_chnl_ff[3:0]}) * KNL_SIZE + i * KNL_WIDTH + j] * ifmap[j * KNL_HEIGHT + i];
-      products_roff[i * KNL_WIDTH + j] = {{16{products[i * KNL_WIDTH + j][DATA_WIDTH - 1]}}, products[i * KNL_WIDTH + j][DATA_WIDTH - 1:16]} + products[i * KNL_WIDTH + j][DATA_WIDTH - 1];
+      products[i * KNL_WIDTH + j] = knls[(KNL_MAXNUM - num_knls + {1'b0, cnt_ofmap_chnl_ff[3:0]}) * KNL_SIZE + i * KNL_WIDTH + j] * ifmap[j * KNL_HEIGHT + i];
+      products_roff[i * KNL_WIDTH + j] = {{16{products[i * KNL_WIDTH + j][DATA_WIDTH - 1]}}, products[i * KNL_WIDTH + j][DATA_WIDTH - 1:16]} + {31'd0, products[i * KNL_WIDTH + j][DATA_WIDTH - 1]};
     end
 end
 

@@ -15,7 +15,10 @@ define_design_lib $TOPLEVEL -path ./$TOPLEVEL
 set HDL_DIR "../hdl"
 
 #Read Design File (add your files here)
-analyze -library $TOPLEVEL -format verilog "$HDL_DIR/conv_layer.v"
+analyze -library $TOPLEVEL -format verilog "$HDL_DIR/lenet.v \
+$HDL_DIR/conv.v \
+$HDL_DIR/relu.v \
+"
 elaborate $TOPLEVEL -architecture verilog -library $TOPLEVEL
 
 #Solve Multiple Instance
