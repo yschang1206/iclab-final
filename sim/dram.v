@@ -79,11 +79,10 @@ input [4:0] height;
 input [4:0] depth;
 integer i, j, k, p, n;
 reg [DATA_WIDTH-1:0] ans;
-reg [DATA_WIDTH-1:0] bias [0:15];
 reg [DATA_WIDTH-1:0] golden [0:1599];
 begin
-  $readmemh("../data/l2.bs.unpad", bias);
-  $readmemh("../data/out2.dat.unpad", golden);
+  //$readmemh("../data/out2.dat.unpad", golden);
+  $readmemh("../data/out3.dat.unpad", golden);
   n = 0;
   for (i = 0; i < depth; i = i + 1)
     for (j = 0; j < height; j = j + 1)
