@@ -1,3 +1,3 @@
-conv.v
-relu.v
-lenet.v
+../hdl/conv.v
+../hdl/relu.v
+../hdl/lenet.v

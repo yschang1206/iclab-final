@@ -29,9 +29,9 @@ localparam  ST_IDLE = 3'd0,
             ST_EVAL = 3'd3,
             ST_DONE = 3'd4;
 
-localparam  PARAM_BASE = 0,
-            BIAS_BASE = 61440 + PARAM_BASE,  // 16x120x32 + PARAM_BASE
-            FMAP_BASE = 131072;
+localparam  PARAM_BASE = 18'd0,
+            BIAS_BASE = 18'd61440,  // 16x120x32 + PARAM_BASE
+            FMAP_BASE = 18'd131072;
 
 /* global regs, wires and integers */
 reg [2:0] state, state_nx;
@@ -55,9 +55,9 @@ reg rdy_pixel;
 reg done_eval;
 
 // TODO: read parameters from dram
-wire [5:0] fmap_width = 6'd10;
-wire [5:0] fmap_height = 6'd10;
-wire [4:0] fmap_depth = 5'd16;
+localparam fmap_width = 6'd10;
+localparam fmap_height = 6'd10;
+localparam fmap_depth = 5'd16;
 
 /* event flags */
 assign bs_last = (cnt_bs == fmap_depth - 1);
@@ -82,6 +82,7 @@ always@(*) begin
     ST_LD_BIAS: state_nx = (bs_last) ? ST_EVAL : ST_LD_BIAS;
     ST_EVAL: state_nx = (done_eval) ? ST_DONE : ST_EVAL;
     ST_DONE: state_nx = ST_IDLE;
+    default: state_nx = ST_IDLE;
   endcase
 end
 
@@ -89,8 +90,8 @@ always@(*) begin
   /* output logic: input memory address translator */
   case (state)
     ST_LD_PARAM: addr_in = PARAM_BASE;
-    ST_LD_BIAS: addr_in = BIAS_BASE + cnt_bs;
-    ST_EVAL: addr_in = FMAP_BASE + {cnt_depth[3:0], cnt_height[4:0], cnt_width[4:0]};
+    ST_LD_BIAS: addr_in = BIAS_BASE + {14'd0, cnt_bs};
+    ST_EVAL: addr_in = FMAP_BASE + {4'd0, cnt_depth[3:0], cnt_height[4:0], cnt_width[4:0]};
     default: addr_in = 0;
   endcase
 end
