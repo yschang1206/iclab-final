@@ -12,6 +12,11 @@ sim/nlint.txt
 syn/default.svf
 syn/lenet
 syn/alib-52
+sim/sim_gate
+sim/sim_post
+sim/sim_pre
+sim/sim_nLint
+syn/netlist
 
 nLint*
 *.o
