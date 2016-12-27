@@ -32,6 +32,8 @@ localparam  PARAM_BASE = 0,
             OFMAP_BASE = 65536,
             IFMAP_BASE = 131072;
 
+localparam  NUM_PARAM = 3;
+
 /* global regs, wires and integers */
 reg [DATA_WIDTH - 1:0] ifmap[0:3];
 reg [2:0] state, state_nx;
@@ -43,6 +45,11 @@ reg [DATA_WIDTH - 1:0] data_out_nx;
 reg pixel_rdy[0:2];
 reg pool_done;
 integer i;
+
+/* regs and wires for loading paramets */
+reg [1:0] cnt_param, cnt_param_nx;
+wire param_last;
+reg param_last_ff;
 
 /* regs and wires for pooling */
 reg [5:0] cnt_ifmap_base_x, cnt_ifmap_base_x_nx;
@@ -57,9 +64,12 @@ wire ifmap0_lt_ifmap1, ifmap_2_lt_ifmap3;
 wire [DATA_WIDTH - 1:0] ifmap01_max, ifmap23_max;
 
 // TODO: read parameters from dram
-wire [5:0] ifmap_width = 6'd10;
-wire [5:0] ifmap_height = 6'd10;
-wire [4:0] ifmap_depth = 5'd16;
+//wire [5:0] ifmap_width = 6'd10;
+//wire [5:0] ifmap_height = 6'd10;
+//wire [4:0] ifmap_depth = 5'd16;
+reg [5:0] ifmap_width;
+reg [5:0] ifmap_height;
+reg [5:0] ifmap_depth;
 
 /* wire forwarding */
 assign cnt_ifmap_delta_x = cnt_ifmap_delta_xy[0];
@@ -71,6 +81,7 @@ assign ifmap_base_y_last = (cnt_ifmap_base_y == ifmap_height - 6'd2);
 assign ifmap_z_last = (cnt_ifmap_z == ifmap_depth - 1);
 assign ifmap_delta_x_last = cnt_ifmap_delta_x;
 assign ifmap_delta_y_last = cnt_ifmap_delta_y;
+assign param_last = (cnt_param == NUM_PARAM - 1);
 
 /* finite state machine */
 always@(posedge clk) begin
@@ -85,7 +96,7 @@ always@(*) begin
   /* next state logic */
   case (state)
     ST_IDLE: state_nx = (enable) ? ST_LD_PARAM : ST_IDLE;
-    ST_LD_PARAM: state_nx = ST_POOL;
+    ST_LD_PARAM: state_nx = (param_last_ff) ? ST_POOL : ST_LD_PARAM;
     ST_POOL: state_nx = (pool_done) ? ST_DONE : ST_POOL;
     ST_DONE: state_nx = ST_IDLE;
     default: state_nx = ST_IDLE;
@@ -95,6 +106,7 @@ end
 always@(*) begin
   /* output logic: input memory address translator */
   case (state)
+    ST_LD_PARAM: addr_in = PARAM_BASE + {16'd0, cnt_param};
     ST_POOL: addr_in = IFMAP_BASE + {
       cnt_ifmap_z[3:0],
       cnt_ifmap_base_y[4:0] + {4'd0, cnt_ifmap_delta_y},
@@ -136,6 +148,10 @@ end
 always@(*) begin
   /* output logic: dram enable signal */
   case (state)
+    ST_LD_PARAM: begin
+      dram_en_wr = 0;
+      dram_en_rd = 1;
+    end
     ST_POOL: begin
       dram_en_wr = pixel_rdy[2];
       dram_en_rd = 1;
@@ -163,6 +179,14 @@ always@(posedge clk) begin
   end
 end
 
+/* delayed registers */
+always@(posedge clk) begin
+  if (~srstn)
+    param_last_ff <= 0;
+  else
+    param_last_ff <= param_last;
+end
+
 /* input feature map register file */
 always@(posedge clk) begin
   if (~srstn)
@@ -172,6 +196,20 @@ always@(posedge clk) begin
     ifmap[3] <= data_in;
     for (i = 0; i < 3; i = i + 1)
       ifmap[i] <= ifmap[i + 1];
+  end
+end
+
+/* parameter register file */
+always@(posedge clk) begin
+  if (~srstn) begin
+    ifmap_width <= 0;
+    ifmap_height <= 0;
+    ifmap_depth <= 0;
+  end
+  else if (state == ST_LD_PARAM) begin
+    ifmap_depth <= data_in[5:0];
+    ifmap_height <= ifmap_depth;
+    ifmap_width <= ifmap_height;
   end
 end
 
@@ -200,6 +238,21 @@ always@(*) begin
     data_out_nx = ifmap01_max;
   else
     data_out_nx = ifmap23_max;
+end
+
+/* counter to record how many parmaters have been read */
+always@(posedge clk) begin
+  if (~srstn)
+    cnt_param <= 0;
+  else
+    cnt_param <= cnt_param_nx;
+end
+
+always@(*) begin
+  if (state == ST_LD_PARAM)
+    cnt_param_nx = cnt_param + 1;
+  else
+    cnt_param_nx = 0;
 end
 
 /* counter to record the base x of the currently loading pixel */

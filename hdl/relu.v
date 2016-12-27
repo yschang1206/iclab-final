@@ -33,7 +33,7 @@ localparam  PARAM_BASE = 18'd0,
             BIAS_BASE = 18'd61440,  // 16x120x32 + PARAM_BASE
             FMAP_BASE = 18'd131072;
 
-localparam  PARAM_NUM = 2'd3;
+localparam  NUM_PARAM = 2'd3;
 
 /* global regs, wires and integers */
 reg [2:0] state, state_nx;
@@ -43,8 +43,10 @@ wire height_last;
 wire depth_last;
 integer i;
 
-/* reg for loading parameter */
+/* regs and wires for loading parameter */
 reg [1:0] cnt_param, cnt_param_nx;
+wire param_last;
+reg param_last_ff;
 
 /* regs for loading bias */
 reg [DATA_WIDTH - 1:0] biases[0:KNL_MAXNUM - 1];
@@ -87,7 +89,7 @@ always@(*) begin
   /* next state logic */
   case (state)
     ST_IDLE: state_nx = (enable) ? ST_LD_PARAM : ST_IDLE;
-    ST_LD_PARAM: state_nx = (param_last) ? ST_LD_BIAS : ST_LD_PARAM;
+    ST_LD_PARAM: state_nx = (param_last_ff) ? ST_LD_BIAS : ST_LD_PARAM;
     ST_LD_BIAS: state_nx = (bs_last) ? ST_EVAL : ST_LD_BIAS;
     ST_EVAL: state_nx = (done_eval) ? ST_DONE : ST_EVAL;
     ST_DONE: state_nx = ST_IDLE;
@@ -98,7 +100,7 @@ end
 always@(*) begin
   /* output logic: input memory address translator */
   case (state)
-    ST_LD_PARAM: addr_in = PARAM_BASE;
+    ST_LD_PARAM: addr_in = PARAM_BASE + {16'd0, cnt_param};
     ST_LD_BIAS: addr_in = BIAS_BASE + {14'd0, cnt_bs};
     ST_EVAL: addr_in = FMAP_BASE + {4'd0, cnt_depth[3:0], cnt_height[4:0], cnt_width[4:0]};
     default: addr_in = 0;
@@ -157,6 +159,14 @@ always@(posedge clk) begin
     done_eval <= width_last & height_last & depth_last;
 end
 
+/* delayed registers */
+always@(posedge clk) begin
+  if (~srstn)
+    param_last_ff <= 0;
+  else
+    param_last_ff <= param_last;
+end
+
 /* evalution: bias -> relu */
 assign pixel = data_in + biases[cnt_depth_ff];
 assign data_out = pixel[DATA_WIDTH - 1] ? 0 : pixel;  // discard negative value
@@ -180,7 +190,7 @@ always@(posedge clk) begin
     fmap_height <= 0;
     fmap_depth <= 0;
   end
-  else if (valid_param) begin
+  else if (state == ST_LD_PARAM) begin
     fmap_depth <= data_in[5:0];
     fmap_height <= fmap_depth;
     fmap_width <= fmap_height;
@@ -197,7 +207,7 @@ end
 
 always@(*) begin
   if (state == ST_LD_PARAM)
-    cnt_param_nx = cnt_param_nx + 1;
+    cnt_param_nx = cnt_param + 1;
   else
     cnt_param_nx = 0;
 end

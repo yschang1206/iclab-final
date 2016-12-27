@@ -72,6 +72,12 @@ begin
 end
 endtask
 
+task load_l3_data;
+begin
+  $readmemh("../data/l3.param", data);
+end
+endtask
+
 task print_result;
 input [ADDR_WIDTH - 1:0] base;
 input [4:0] width;

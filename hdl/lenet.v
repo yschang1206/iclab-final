@@ -14,13 +14,17 @@ module lenet
   input srstn,
   input enable,
   input dram_valid,
+  input rdy_data,
   input [DATA_WIDTH - 1:0] data_in,
   output reg [DATA_WIDTH - 1:0] data_out,
   output reg [ADDR_WIDTH - 1:0] addr_in,
   output reg [ADDR_WIDTH - 1:0] addr_out,
   output reg dram_en_wr,
   output reg dram_en_rd,
-  output done
+  output done,
+  output done_conv,
+  output done_relu,
+  output done_pool
 );
 
 localparam  ST_IDLE = 3'd0,
@@ -29,13 +33,14 @@ localparam  ST_IDLE = 3'd0,
             ST_POOL = 3'd3,
             ST_DONE = 3'd7;
 
+reg rdy_data_ff;
+
 /* conv wires */
 wire en_conv;
 wire dram_valid_conv;
 wire [DATA_WIDTH - 1:0] data_out_conv;
 wire [ADDR_WIDTH - 1:0] addr_in_conv, addr_out_conv;
 wire dram_en_wr_conv, dram_en_rd_conv;
-wire done_conv;
 
 conv conv(
   .clk(clk),
@@ -57,7 +62,6 @@ wire dram_valid_relu;
 wire [DATA_WIDTH - 1:0] data_out_relu;
 wire [ADDR_WIDTH - 1:0] addr_in_relu, addr_out_relu;
 wire dram_en_wr_relu, dram_en_rd_relu;
-wire done_relu;
 
 relu relu(
   .clk(clk),
@@ -79,7 +83,6 @@ wire dram_valid_pool;
 wire [DATA_WIDTH - 1:0] data_out_pool;
 wire [ADDR_WIDTH - 1:0] addr_in_pool, addr_out_pool;
 wire dram_en_wr_pool, dram_en_rd_pool;
-wire done_pool;
 
 max_pool max_pool(
   .clk(clk),
@@ -111,7 +114,6 @@ always@(*) begin
   /* next state logic */
   case (state)
     ST_IDLE: state_nx = (enable) ? ST_CONV : ST_IDLE;
-    // debug
     ST_CONV: state_nx = (done_conv) ? ST_RELU : ST_CONV;
     ST_RELU: state_nx = (done_relu) ? ST_POOL : ST_RELU;
     ST_POOL: state_nx = (done_pool) ? ST_DONE : ST_POOL;
@@ -120,10 +122,17 @@ always@(*) begin
   endcase
 end
 
+always@(posedge clk) begin
+  if (~srstn)
+    rdy_data_ff <= 0;
+  else
+    rdy_data_ff <= rdy_data;
+end
+
 /* output logic: submodule enable signals */
-assign en_conv = (state == ST_CONV);
-assign en_relu = (state == ST_RELU);
-assign en_pool = (state == ST_POOL);
+assign en_conv = (state == ST_CONV & rdy_data_ff);
+assign en_relu = (state == ST_RELU & rdy_data_ff);
+assign en_pool = (state == ST_POOL & rdy_data_ff);
 
 /* output logic: done signal */
 assign done = (state == ST_DONE);
