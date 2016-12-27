@@ -30,7 +30,7 @@ localparam  ST_IDLE = 3'd0,
             ST_DONE = 3'd4;
 
 localparam  PARAM_BASE = 18'd0,
-            BIAS_BASE = 18'd61440,  // 16x120x32 + PARAM_BASE
+            BIAS_BASE = 18'd61504,  // 64 + 16x120x32, 0xf040
             FMAP_BASE = 18'd131072;
 
 localparam  NUM_PARAM = 2'd3;

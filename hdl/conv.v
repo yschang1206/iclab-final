@@ -28,22 +28,31 @@ module conv
 
 /* local parameters */
 localparam  IDX_IDLE          = 0, 
-            IDX_LD_KNLS       = 1, 
-            IDX_LD_IFMAP_FULL = 2, 
-            IDX_LD_IFMAP_PART = 3, 
-            IDX_CONV          = 4,
-            IDX_DONE          = 5;
+            IDX_LD_PARAM      = 1,
+            IDX_LD_KNLS       = 2, 
+            IDX_LD_IFMAP_FULL = 3, 
+            IDX_LD_IFMAP_PART = 4, 
+            IDX_CONV          = 5,
+            IDX_DONE          = 6;
 
-localparam  ST_IDLE          = 6'b000001, 
-            ST_LD_KNLS       = 6'b000010, 
-            ST_LD_IFMAP_FULL = 6'b000100, 
-            ST_LD_IFMAP_PART = 6'b001000, 
-            ST_CONV          = 6'b010000,
-            ST_DONE          = 6'b100000;
+localparam  ST_IDLE          = 7'b0000001, 
+            ST_LD_PARAM      = 7'b0000010,
+            ST_LD_KNLS       = 7'b0000100, 
+            ST_LD_IFMAP_FULL = 7'b0001000, 
+            ST_LD_IFMAP_PART = 7'b0010000, 
+            ST_CONV          = 7'b0100000,
+            ST_DONE          = 7'b1000000;
+
+localparam  PARAM_BASE = 18'd0,
+            WTS_BASE   = 18'd64,
+            IFMAP_BASE = 18'd65536,
+            OFMAP_BASE = 18'd131072;
+
+localparam  NUM_PARAM = 6'd4; // TODO: add table
 
 /* global wires, registers and integers */
 integer i, j;
-reg [5:0] state, state_nx;
+reg [7:0] state, state_nx;
 wire knl_wts_last, knl_id_last;
 wire ifmap_delta_x_last, ifmap_delta_y_last;
 wire ifmap_base_x_last, ifmap_base_y_last;
@@ -55,6 +64,12 @@ reg ifmap_chnl_last_ff;
 reg ifmap_base_x_last_ff, ifmap_base_y_last_ff;
 // delay one cycle to read and write psum of output feature map
 reg [ADDR_WIDTH - 1:0] addr_in_ff;
+
+/* registers for parameters */
+reg [5:0] cnt_param, cnt_param_nx;
+reg [5:0] num_knls, ifmap_depth, ifmap_height, ifmap_width;
+wire param_last;
+reg param_last_ff;
 
 /* wires and registers for kernels */
 reg [DATA_WIDTH - 1:0] knls[0:KNL_MAXNUM * KNL_SIZE - 1];
@@ -83,13 +98,13 @@ reg en_ld_knl;
 reg en_ld_ifmap, en_ld_ifmap_nx;
 
 // TODO: read parameter from dram
-localparam num_knls = 5'd16;
-localparam ifmap_width = 6'd14;
-localparam ifmap_height = 6'd14;
-localparam ifmap_depth = 5'd6;
-localparam wts_base = 0;
-localparam ifmap_base = 18'd65536;
-localparam ofmap_base = 18'd131072;
+//localparam num_knls = 5'd16;
+//localparam ifmap_width = 6'd14;
+//localparam ifmap_height = 6'd14;
+//localparam ifmap_depth = 5'd6;
+//localparam wts_base = 0;
+//localparam ifmap_base = 18'd65536;
+//localparam ofmap_base = 18'd131072;
 
 /* forwarded wires */
 assign cnt_ifmap_chnl = cnt_knl_chnl;
@@ -104,11 +119,17 @@ assign ifmap_base_y_last  = (cnt_ifmap_base_y  == ifmap_height - KNL_HEIGHT);
 assign ifmap_chnl_last    = (cnt_ifmap_chnl    == ifmap_depth - 1);
 assign ofmap_chnl_last    = (cnt_ofmap_chnl    == num_knls - 5'd1);
 assign ofmap_chnl_ff_last = (cnt_ofmap_chnl_ff == num_knls - 5'd1);
+assign param_last = (cnt_param == NUM_PARAM - 1);
 
 /* delayed registers */
 always@(posedge clk) begin
   if (~srstn) addr_in_ff <= 0;
   else        addr_in_ff <= addr_in;
+end
+
+always@(posedge clk) begin
+  if (~srstn) param_last_ff <= 0;
+  else        param_last_ff <= param_last;
 end
 
 always@(posedge clk) begin
@@ -154,7 +175,9 @@ end
 always@(*) begin
   /* next state logic */
   case (state)
-    ST_IDLE: state_nx = (enable) ? ST_LD_KNLS : ST_IDLE;
+    ST_IDLE: state_nx = (enable) ? ST_LD_PARAM : ST_IDLE;
+
+    ST_LD_PARAM: state_nx = (param_last_ff) ? ST_LD_KNLS : ST_LD_PARAM;
 
     ST_LD_KNLS: state_nx = 
       (knl_wts_last & knl_id_last) ? ST_LD_IFMAP_FULL : ST_LD_KNLS;
@@ -177,16 +200,17 @@ always@(*) begin
 end
 
 always@(*) begin // input memory address translator
-  case ({state[IDX_LD_KNLS], state[IDX_LD_IFMAP_FULL], state[IDX_LD_IFMAP_PART], state[IDX_CONV]}) // synopsys parallel_case
-    4'b1000 : addr_in = wts_base + {
+  case ({state[IDX_LD_PARAM], state[IDX_LD_KNLS], state[IDX_LD_IFMAP_FULL], state[IDX_LD_IFMAP_PART], state[IDX_CONV]}) // synopsys parallel_case
+    5'b10000 : addr_in = PARAM_BASE + {12'd0, cnt_param};
+    5'b01000 : addr_in = WTS_BASE + {
                         cnt_knl_id[3:0], cnt_knl_chnl[3:0], cnt_knl_wts[4:0]};
-    4'b0100 : addr_in = ifmap_base + {4'd0, cnt_ifmap_chnl[3:0], 
+    5'b00100 : addr_in = IFMAP_BASE + {4'd0, cnt_ifmap_chnl[3:0], 
                         cnt_ifmap_base_y[4:0] + {2'd0, cnt_ifmap_delta_y[2:0]},
                         cnt_ifmap_base_x[4:0] + {2'd0, cnt_ifmap_delta_x[2:0]}}; 
-    4'b0010 : addr_in = ifmap_base + {4'd0, cnt_ifmap_chnl[3:0], 
+    5'b00010 : addr_in = IFMAP_BASE + {4'd0, cnt_ifmap_chnl[3:0], 
                         cnt_ifmap_base_y[4:0] + {2'd0, cnt_ifmap_delta_y[2:0]},
                         cnt_ifmap_base_x[4:0] + {2'd0, cnt_ifmap_delta_x[2:0]} + KNL_WIDTH - 5'd1};
-    4'b0001 : addr_in = ofmap_base + {4'd0,
+    5'b00001 : addr_in = OFMAP_BASE + {4'd0,
                         cnt_ofmap_chnl[3:0], cnt_ifmap_base_y[4:0], cnt_ifmap_base_x[4:0]};
     default: addr_in = 0;
   endcase
@@ -232,6 +256,22 @@ always@(*) begin
       mac = mac + products_roff[i * KNL_WIDTH + j];
 end
 
+/* parameter register file */
+always@(posedge clk) begin
+  if (~srstn) begin
+    num_knls <= 0;
+    ifmap_depth <= 0;
+    ifmap_height <= 0;
+    ifmap_width <= 0;
+  end
+  else if (state == ST_LD_PARAM) begin
+    num_knls <= data_in;
+    ifmap_depth <= num_knls;
+    ifmap_height <= ifmap_depth;
+    ifmap_width <= ifmap_height;
+  end
+end
+
 /* weight register file */
 always @(posedge clk) begin
   if (en_ld_knl) begin
@@ -248,6 +288,21 @@ always @(posedge clk) begin
     for (i = 0; i < KNL_SIZE-1; i = i+1)
       ifmap[i] <= ifmap[i+1];
   end
+end
+
+/* counter to record how many parameters have been read */
+always@(posedge clk) begin
+  if (~srstn)
+    cnt_param <= 0;
+  else
+    cnt_param <= cnt_param_nx;
+end
+
+always@(*) begin
+  if (state == ST_LD_PARAM)
+    cnt_param_nx = cnt_param + 1;
+  else
+    cnt_param_nx = 0;
 end
 
 /** 
