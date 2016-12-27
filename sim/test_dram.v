@@ -71,7 +71,8 @@ initial begin
   wait(srstn == 0);
   wait(srstn == 1);
   wait(done == 1);
-  dram_0.print_result(131072, 10, 10, 16);
+  //dram_0.print_result(131072, 10, 10, 16);
+  dram_0.print_result(65536, 5, 5, 16);
   #(CYCLE);
   $finish;
 end
@@ -85,8 +86,8 @@ end
 
 /* fsdb */
 initial begin
-  //$fsdbDumpfile("test_dram.fsdb");
-  //$fsdbDumpvars(0, test_dram, "+mda");
+  $fsdbDumpfile("test_dram.fsdb");
+  $fsdbDumpvars(0, test_dram, "+mda");
 end
 
 endmodule
