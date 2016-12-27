@@ -42,21 +42,6 @@ always @(posedge clk) begin
   else valid <= en_rd;
 end
 
-// ====== DRAM connection =====
-/*
-dram dram_0(
-  .clk(clk),
-  .srstn(srstn),
-  .en_wr(en_wr),
-  .addr_wr(addr_wr),
-  .data_in(data_in),
-  .en_rd(en_rd),
-  .addr_rd(addr_rd),
-  .valid(valid),
-  .data_out(data_out)
-);
-*/
-
 /* initialize dram */
 initial begin
   for (i = 0; i < 2**ADDR_WIDTH; i = i + 1)
@@ -64,11 +49,23 @@ initial begin
 end
 
 // use task in top_tb.v ->  dram_0.data2dram;
-task data2dram;
+task load_img;
 begin
+  $readmemh("../data/out1.dat", data);
+end
+endtask
+
+task load_l2_pre_data;
+begin
+  $readmemh("../data/l2_pre.param", data);
   $readmemh("../data/l2.wt", data);
   $readmemh("../data/l2.bs", data);
-  $readmemh("../data/out1.dat", data);
+end
+endtask
+
+task load_l2_post_data;
+begin
+  $readmemh("../data/l2_post.param", data);
 end
 endtask
 

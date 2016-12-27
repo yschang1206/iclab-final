@@ -64,8 +64,8 @@ initial begin
   @(negedge clk);
   srstn = 1;
   @(negedge clk);
-  dram_0.data2dram;
-  $display("%d ns: Read input data finish", $time);
+  dram_0.load_img;
+  $display("%d ns: Finish reading input data", $time);
 
   /* one pulse enable */
   @(negedge clk);
@@ -73,18 +73,20 @@ initial begin
   @(negedge clk);
   enable = 0;
 
+  dram_0.load_l2_pre_data;
+  @(negedge clk);
   rdy_data = 1;
   @(negedge clk);
   rdy_data = 0;
-
   wait(done_conv == 1);
-  dram_0.load_l3_data;
+
+  dram_0.load_l2_post_data;
   @(negedge clk);
   rdy_data = 1;
   @(negedge clk);
   rdy_data = 0;
-
   wait(done_relu == 1);
+
   dram_0.load_l3_data;
   @(negedge clk);
   rdy_data = 1;
@@ -113,7 +115,7 @@ end
 
 /* fsdb */
 initial begin
- // $fsdbDumpfile("test_dram.fsdb");
+  //$fsdbDumpfile("test_dram.fsdb");
   //$fsdbDumpvars(0, test_dram, "+mda");
 end
 
