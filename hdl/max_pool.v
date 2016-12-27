@@ -43,13 +43,13 @@ reg [DATA_WIDTH - 1:0] data_out_nx;
 reg pixel_rdy[0:2];
 reg pool_done;
 integer i;
-// TODO: replace delta x and y with one 2-bits reg
 
-/* regs for pooling */
+/* regs and wires for pooling */
 reg [5:0] cnt_ifmap_base_x, cnt_ifmap_base_x_nx;
-reg cnt_ifmap_delta_x, cnt_ifmap_delta_x_nx;
 reg [5:0] cnt_ifmap_base_y, cnt_ifmap_base_y_nx;
-reg cnt_ifmap_delta_y, cnt_ifmap_delta_y_nx;
+reg [1:0] cnt_ifmap_delta_xy, cnt_ifmap_delta_xy_nx;
+wire cnt_ifmap_delta_x;
+wire cnt_ifmap_delta_y;
 reg [5:0] cnt_ifmap_z, cnt_ifmap_z_nx;
 
 /* wire for comparison */
@@ -60,6 +60,10 @@ wire [DATA_WIDTH - 1:0] ifmap01_max, ifmap23_max;
 wire [5:0] ifmap_width = 6'd10;
 wire [5:0] ifmap_height = 6'd10;
 wire [4:0] ifmap_depth = 5'd16;
+
+/* wire forwarding */
+assign cnt_ifmap_delta_x = cnt_ifmap_delta_xy[0];
+assign cnt_ifmap_delta_y = cnt_ifmap_delta_xy[1];
 
 /* event flags */
 assign ifmap_base_x_last = (cnt_ifmap_base_x == ifmap_width - 6'd2);
@@ -258,37 +262,19 @@ always@(*) begin
     cnt_ifmap_z_nx = 0;
 end
 
-/* counter to record the delta x of the currently loading pixel */
+/* counter to record the delta x and delta y of the currently loading pixel */
 always@(posedge clk) begin
   if (~srstn)
-    cnt_ifmap_delta_x <= 0;
+    cnt_ifmap_delta_xy <= 0;
   else
-    cnt_ifmap_delta_x <= cnt_ifmap_delta_x_nx;
+    cnt_ifmap_delta_xy <= cnt_ifmap_delta_xy_nx;
 end
 
 always@(*) begin
   if (state == ST_POOL)
-    cnt_ifmap_delta_x_nx = cnt_ifmap_delta_x + 1;
+    cnt_ifmap_delta_xy_nx = cnt_ifmap_delta_xy + 1;
   else
-    cnt_ifmap_delta_x_nx = 0;
-end
-
-/* counter to record the delta y of the currently loading pixel */
-always@(posedge clk) begin
-  if (~srstn)
-    cnt_ifmap_delta_y <= 0;
-  else
-    cnt_ifmap_delta_y <= cnt_ifmap_delta_y_nx;
-end
-
-always@(*) begin
-  if (state == ST_POOL)
-    if (ifmap_delta_x_last)
-      cnt_ifmap_delta_y_nx = cnt_ifmap_delta_y + 1;
-    else
-      cnt_ifmap_delta_y_nx = cnt_ifmap_delta_y;
-  else
-    cnt_ifmap_delta_y_nx = 0;
+    cnt_ifmap_delta_xy_nx = 0;
 end
 
 endmodule

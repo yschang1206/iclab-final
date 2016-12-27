@@ -86,8 +86,8 @@ end
 
 /* fsdb */
 initial begin
-  $fsdbDumpfile("test_dram.fsdb");
-  $fsdbDumpvars(0, test_dram, "+mda");
+  //$fsdbDumpfile("test_dram.fsdb");
+  //$fsdbDumpvars(0, test_dram, "+mda");
 end
 
 endmodule
