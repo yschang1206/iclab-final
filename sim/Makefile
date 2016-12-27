@@ -22,13 +22,12 @@ RM  = rm -rf
 # Working Directories
 HDL_DIR =../hdl/
 SYN_DIR =../syn/
-SIM_DIR =./
 
 # testbench
-TESTBENCH =$(SIM_DIR)test_top.v
+TESTBENCH = test_top.v
 
 # misc
-TOP   =top_pipe
+TOP   = top_pipe
 
 # arguments
 VLOGARG =+access+r
@@ -57,9 +56,22 @@ SYN_TEMP=*.log \
   
 # Targets
 lint :
-	nLint -f $(HDL_DIR)hdl.f -out $(SIM_DIR)nLint.txt
+	rm -rf sim_nLint
+	mkdir sim_nLint
+	nLint -f $(HDL_DIR)hdl.f -out nLint.txt
+	mv nLintDB sim_nLint
+	mv nLintLog sim_nLint
+	cat nLint.txt | less
+
 presim :
-	ncverilog -f sim_pre.f | tee presim_log.log
+	rm -rf sim_pre
+	mkdir sim_pre
+	ncverilog -f sim_pre.f
+	mv INCA_libs sim_pre
+	mv ncverilog.log sim_pre
+	mv novas_dump.log sim_pre
+	# cat ./sim_pre/ncverilog.log | less
+
 gatesim :
 	ncverilog -f sim_gate.f | tee gatesim_log.log
 syn :
@@ -70,7 +82,7 @@ veryclean: hdlclean simclean synclean
 hdlclean :
 	cd $(HDL_DIR) && $(RM) $(TEMP)
 simclean :
-	cd $(SIM_DIR) && $(RM) $(TEMP)
+	cd rm -rf $(TEMP)
 synclean :
 	cd $(SYN_DIR) && $(RM) $(SYN_TEMP)
 
