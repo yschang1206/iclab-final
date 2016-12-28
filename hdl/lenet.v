@@ -22,9 +22,7 @@ module lenet
   output reg dram_en_wr,
   output reg dram_en_rd,
   output done,
-  output done_conv,
-  output done_relu,
-  output done_pool
+  output reg done_one_layer
 );
 
 localparam  ST_IDLE = 3'd0,
@@ -100,6 +98,20 @@ max_pool max_pool(
 
 /* global regs */
 reg [2:0] state, state_nx;
+wire [2:0] stage_tbl[0:15];
+reg [3:0] cnt_stage, cnt_stage_nx;
+
+assign stage_tbl[0] = ST_CONV;
+assign stage_tbl[1] = ST_RELU;
+assign stage_tbl[2] = ST_POOL;
+//assign stage_tbl[3] = ST_DONE;
+
+assign stage_tbl[3] = ST_CONV;
+//assign stage_tbl[4] = ST_DONE;
+assign stage_tbl[4] = ST_RELU;
+//assign stage_tbl[5] = ST_DONE;
+assign stage_tbl[5] = ST_POOL;
+assign stage_tbl[6] = ST_DONE;
 
 /* finite state machine */
 always@(posedge clk) begin
@@ -113,12 +125,8 @@ end
 always@(*) begin
   /* next state logic */
   case (state)
-    ST_IDLE: state_nx = (enable) ? ST_CONV : ST_IDLE;
-    ST_CONV: state_nx = (done_conv) ? ST_RELU : ST_CONV;
-    ST_RELU: state_nx = (done_relu) ? ST_POOL : ST_RELU;
-    ST_POOL: state_nx = (done_pool) ? ST_DONE : ST_POOL;
-    ST_DONE: state_nx = ST_IDLE;
-    default: state_nx = ST_IDLE;
+    ST_IDLE: state_nx = (enable) ? stage_tbl[0] : ST_IDLE;
+    default: state_nx = stage_tbl[cnt_stage];
   endcase
 end
 
@@ -169,6 +177,28 @@ always@(*) begin
       dram_en_rd = 0;
     end
   endcase
+end
+
+always@(posedge clk) begin
+  if (~srstn)
+    done_one_layer <= 0;
+  else
+    done_one_layer <= (done_conv | done_relu | done_pool);
+end
+
+/* counter to record the currently stage */
+always@(posedge clk) begin
+  if (~srstn)
+    cnt_stage <= 0;
+  else
+    cnt_stage <= cnt_stage_nx;
+end
+
+always@(*) begin
+  if (done_conv | done_relu | done_pool)
+    cnt_stage_nx = cnt_stage + 1;
+  else
+    cnt_stage_nx = cnt_stage;
 end
 
 endmodule

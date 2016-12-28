@@ -46,9 +46,7 @@ lenet lenet(
   .dram_en_wr(dram_en_wr),
   .dram_en_rd(dram_en_rd),
   .done(done),
-  .done_conv(done_conv),
-  .done_relu(done_relu),
-  .done_pool(done_pool)
+  .done_one_layer(done_one_layer)
 );
 
 always #(CYCLE / 2) clk = ~clk;
@@ -65,6 +63,7 @@ initial begin
   srstn = 1;
   @(negedge clk);
   dram_0.load_img;
+  //dram_0.load_out1;
   $display("%d ns: Finish reading input data", $time);
 
   /* one pulse enable */
@@ -72,20 +71,41 @@ initial begin
   enable = 1;
   @(negedge clk);
   enable = 0;
+  dram_0.load_l0_pre_data;
+  @(negedge clk);
+  rdy_data = 1;
+  @(negedge clk);
+  rdy_data = 0;
+  wait(done_one_layer == 1);
+
+  dram_0.load_l0_post_data;
+  @(negedge clk);
+  rdy_data = 1;
+  @(negedge clk);
+  rdy_data = 0;
+  wait(done_one_layer == 1);
+
+  dram_0.load_l1_data;
+  @(negedge clk);
+  rdy_data = 1;
+  @(negedge clk);
+  rdy_data = 0;
+  @(negedge clk);
+  wait(done_one_layer == 1);
 
   dram_0.load_l2_pre_data;
   @(negedge clk);
   rdy_data = 1;
   @(negedge clk);
   rdy_data = 0;
-  wait(done_conv == 1);
+  wait(done_one_layer == 1);
 
   dram_0.load_l2_post_data;
   @(negedge clk);
   rdy_data = 1;
   @(negedge clk);
   rdy_data = 0;
-  wait(done_relu == 1);
+  wait(done_one_layer == 1);
 
   dram_0.load_l3_data;
   @(negedge clk);
@@ -100,6 +120,8 @@ initial begin
   wait(srstn == 0);
   wait(srstn == 1);
   wait(done == 1);
+  //dram_0.print_result(131072, 28, 28, 6);
+  //dram_0.print_result(65536, 14, 14, 6);
   //dram_0.print_result(131072, 10, 10, 16);
   dram_0.print_result(65536, 5, 5, 16);
   #(CYCLE);

@@ -64,6 +64,7 @@ reg ifmap_chnl_last_ff;
 reg ifmap_base_x_last_ff, ifmap_base_y_last_ff;
 // delay one cycle to read and write psum of output feature map
 reg [ADDR_WIDTH - 1:0] addr_in_ff;
+reg ifmap_chnl_ff_first;
 
 /* registers for parameters */
 reg [5:0] cnt_param, cnt_param_nx;
@@ -89,8 +90,8 @@ reg [2:0] cnt_ifmap_delta_y, cnt_ifmap_delta_y_nx;
 reg [DATA_WIDTH - 1:0] mac;
 reg [4:0] cnt_ofmap_chnl, cnt_ofmap_chnl_nx;  // output channel
 reg [4:0] cnt_ofmap_chnl_ff;
-reg [DATA_WIDTH - 1:0] products[0:KNL_SIZE - 1];
-reg [DATA_WIDTH - 1:0] products_roff[0:KNL_SIZE - 1];
+reg signed [DATA_WIDTH - 1:0] products[0:KNL_SIZE - 1];
+reg signed [DATA_WIDTH - 1:0] products_roff[0:KNL_SIZE - 1];
 
 /* Enable for some states */
 reg en_conv;
@@ -150,6 +151,11 @@ end
 always@(posedge clk) begin
   if (~srstn) ifmap_chnl_last_ff <= 0;
   else        ifmap_chnl_last_ff <= ifmap_chnl_last;
+end
+
+always@(posedge clk) begin
+  if (~srstn) ifmap_chnl_ff_first <= 0;
+  else        ifmap_chnl_ff_first <= (cnt_ifmap_chnl == 0);
 end
 
 always @(posedge clk) begin
@@ -239,13 +245,13 @@ end
 assign done = state[IDX_DONE];
 
 /* convolution process */
-assign data_out = data_in + mac;
+assign data_out = (ifmap_chnl_ff_first) ? mac : data_in + mac;
 
 always@(*) begin
   for (i = 0; i < KNL_HEIGHT; i = i + 1)
     for (j = 0; j < KNL_WIDTH; j = j + 1) begin
       products[i * KNL_WIDTH + j] = knls[(KNL_MAXNUM - num_knls + {1'b0, cnt_ofmap_chnl_ff[3:0]}) * KNL_SIZE + i * KNL_WIDTH + j] * ifmap[j * KNL_HEIGHT + i];
-      products_roff[i * KNL_WIDTH + j] = {{16{products[i * KNL_WIDTH + j][DATA_WIDTH - 1]}}, products[i * KNL_WIDTH + j][DATA_WIDTH - 1:16]} + {31'd0, products[i * KNL_WIDTH + j][DATA_WIDTH - 1]};
+      products_roff[i * KNL_WIDTH + j] = products[i * KNL_WIDTH + j] >>> 16;
     end
 end
 

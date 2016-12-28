@@ -43,7 +43,8 @@ reg [ADDR_WIDTH - 1:0] addr_out_buf[0:1];
 reg [ADDR_WIDTH - 1:0] addr_out_buf_nx;
 reg [DATA_WIDTH - 1:0] data_out_nx;
 reg pixel_rdy[0:2];
-reg pool_done;
+wire pool_done;
+reg pool_done_ff[0:2];
 integer i;
 
 /* regs and wires for loading paramets */
@@ -82,6 +83,8 @@ assign ifmap_z_last = (cnt_ifmap_z == ifmap_depth - 1);
 assign ifmap_delta_x_last = cnt_ifmap_delta_x;
 assign ifmap_delta_y_last = cnt_ifmap_delta_y;
 assign param_last = (cnt_param == NUM_PARAM - 1);
+assign pool_done = ifmap_base_x_last & ifmap_base_y_last &
+       ifmap_delta_x_last & ifmap_delta_y_last & ifmap_z_last;
 
 /* finite state machine */
 always@(posedge clk) begin
@@ -97,7 +100,7 @@ always@(*) begin
   case (state)
     ST_IDLE: state_nx = (enable) ? ST_LD_PARAM : ST_IDLE;
     ST_LD_PARAM: state_nx = (param_last_ff) ? ST_POOL : ST_LD_PARAM;
-    ST_POOL: state_nx = (pool_done) ? ST_DONE : ST_POOL;
+    ST_POOL: state_nx = (pool_done_ff[2]) ? ST_DONE : ST_POOL;
     ST_DONE: state_nx = ST_IDLE;
     default: state_nx = ST_IDLE;
   endcase
@@ -214,11 +217,16 @@ always@(posedge clk) begin
 end
 
 always@(posedge clk) begin
-  if (~srstn)
-    pool_done <= 0;
-  else
-    pool_done <= ifmap_base_x_last & ifmap_base_y_last &
-      ifmap_delta_x_last & ifmap_delta_y_last & ifmap_z_last;
+  if (~srstn) begin
+    pool_done_ff[0] <= 0;
+    pool_done_ff[1] <= 0;
+    pool_done_ff[2] <= 0;
+  end
+  else begin
+    pool_done_ff[0] <= pool_done;
+    pool_done_ff[1] <= pool_done_ff[0];
+    pool_done_ff[2] <= pool_done_ff[1];
+  end
 end
 
 /* find the maximum value among the four pixel */

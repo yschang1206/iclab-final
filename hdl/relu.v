@@ -71,7 +71,8 @@ reg [5:0] fmap_depth;
 
 /* event flags */
 assign param_last = (cnt_param == NUM_PARAM - 1);
-assign bs_last = (cnt_bs == fmap_depth - 1);
+//assign bs_last = (cnt_bs == fmap_depth - 1);
+assign bs_last = (cnt_bs == KNL_MAXNUM - 1);
 assign width_last = (cnt_width == fmap_width - 1);
 assign height_last = (cnt_height == fmap_height - 1);
 assign depth_last = (cnt_depth == fmap_depth - 1);

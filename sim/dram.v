@@ -48,10 +48,35 @@ initial begin
     data[i] = 0;
 end
 
-// use task in top_tb.v ->  dram_0.data2dram;
 task load_img;
 begin
+  $readmemh("../data/img.dat", data);
+end
+endtask
+
+task load_out1;
+begin
   $readmemh("../data/out1.dat", data);
+end
+endtask
+
+task load_l0_pre_data;
+begin
+  $readmemh("../data/l0_pre.param", data);
+  $readmemh("../data/l0.wt", data);
+  $readmemh("../data/l0.bs", data);
+end
+endtask
+
+task load_l0_post_data;
+begin
+  $readmemh("../data/l0_post.param", data);
+end
+endtask
+
+task load_l1_data;
+begin
+  $readmemh("../data/l1.param", data);
 end
 endtask
 
@@ -82,8 +107,11 @@ input [4:0] height;
 input [4:0] depth;
 integer i, j, k, p, n;
 reg [DATA_WIDTH-1:0] ans;
-reg [DATA_WIDTH-1:0] golden [0:1599];
+reg [DATA_WIDTH-1:0] golden [0:4800];
+reg [DATA_WIDTH-1:0] biases [0:15];
 begin
+  //$readmemh("../data/out0.dat.unpad", golden);
+  //$readmemh("../data/out1.dat.unpad", golden);
   //$readmemh("../data/out2.dat.unpad", golden);
   $readmemh("../data/out3.dat.unpad", golden);
   n = 0;
@@ -92,7 +120,9 @@ begin
       for (k = 0; k < width; k = k + 1) begin
         p = base + i * 1024 + j * 32 + k;
         ans = data[p];
-        if ((ans - golden[n]) < 2 | (golden[n] - ans) < 2)
+
+        //if ((ans - golden[n]) < 2 | (golden[n] - ans) < 2)
+        if (ans === golden[n])
           $display("%d: %x === %x", n, ans, golden[n]);
         else begin
           $display("%d: %x !== %x", n, ans, golden[n]);

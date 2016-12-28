@@ -18,7 +18,8 @@ void conv_one_pixel(int x, int y, int n, kernel_t *knls, fmap_t *ifmap, fmap_t *
             for (k = 0; k < knl->w; k++) {
                 product = knl->weights[DIM_KNL(k, j, i, knl->w, knl->h)] * \
                     ifmap->data[DIM_IN(k + x, j + y, i, ifmap->w, ifmap->h)];
-                ofmap->data[p] += (product / ROUND_OFF);
+                //ofmap->data[p] += (product / ROUND_OFF);
+                ofmap->data[p] += (product >> 16);
             }
     ofmap->data[p] += knl->bias;
     /* relu */
