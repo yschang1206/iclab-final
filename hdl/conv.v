@@ -46,9 +46,9 @@ reg [DATA_WIDTH - 1:0] knls[0:400 - 1];
 reg [DATA_WIDTH - 1:0] ifmap[0:KNL_SIZE - 1];
 
 /* wires and registers for output feature map */
-reg [DATA_WIDTH - 1:0] mac;
+reg [DATA_WIDTH - 1:0] mac, mac_ff;
 
-wire [4:0] cnt_ofmap_chnl_ff;
+wire [4:0] cnt_ofmap_chnl;
 reg signed [DATA_WIDTH - 1:0] products[0:KNL_SIZE - 1];
 reg signed [DATA_WIDTH - 1:0] products_roff[0:KNL_SIZE - 1];
 
@@ -70,13 +70,13 @@ conv_ctrl conv_ctrl
   .en_ld_ifmap(en_ld_ifmap),
   .disable_acc(disable_acc),
   .num_knls(num_knls),
-  .cnt_ofmap_chnl_ff(cnt_ofmap_chnl_ff)
+  .cnt_ofmap_chnl(cnt_ofmap_chnl)
 );
 
 reg [8:0] addr_knl_prod_nx [0:24];
 reg [8:0] addr_knl_prod [0:24];
 wire [8:0] addr_knl_tmp;
-assign addr_knl_tmp = (5'd16 - num_knls[4:0] + cnt_ofmap_chnl_ff) * 5'd25;
+assign addr_knl_tmp = (5'd16 - num_knls[4:0] + cnt_ofmap_chnl) * 5'd25;
                   //  (KNL_MAXNUM - num_knls[4:0] + {1'b0, cnt_ofmap_chnl_ff[3:0]}) * KNL_SIZE
 always@(*) begin
   addr_knl_prod_nx[0] = addr_knl_tmp + 9'd0;
@@ -107,7 +107,12 @@ always@(*) begin
 end
 
 /* convolution process */
-assign data_out = (disable_acc) ? mac : data_in + mac;
+always@(posedge clk) begin
+  if (~srstn) mac_ff <= 0;
+  else        mac_ff <= mac;
+end
+
+assign data_out = (disable_acc) ? mac_ff : data_in + mac_ff;
 
 always@(*) begin
   for (i = 0; i < KNL_HEIGHT; i = i+1) begin
