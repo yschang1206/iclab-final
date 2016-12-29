@@ -16,8 +16,10 @@ set HDL_DIR "../hdl"
 
 #Read Design File (add your files here)
 analyze -library $TOPLEVEL -format verilog "$HDL_DIR/lenet.v \
+$HDL_DIR/conv_ctrl.v \
 $HDL_DIR/conv.v \
 $HDL_DIR/relu.v \
+$HDL_DIR/max_pool.v \
 "
 elaborate $TOPLEVEL -architecture verilog -library $TOPLEVEL
 
