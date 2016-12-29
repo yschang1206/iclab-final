@@ -25,7 +25,7 @@ module conv_ctrl
   output reg en_ld_ifmap,
   output reg disable_acc,
   output reg [5:0] num_knls,
-  output reg [4:0] cnt_ofmap_chnl_ff
+  output reg [4:0] cnt_ofmap_chnl
 );
 
 /* local parameters */
@@ -87,10 +87,11 @@ reg [2:0] cnt_ifmap_delta_x, cnt_ifmap_delta_x_nx;
 reg [2:0] cnt_ifmap_delta_y, cnt_ifmap_delta_y_nx;
 
 /* wires and registers for output feature map */
-reg [4:0] cnt_ofmap_chnl, cnt_ofmap_chnl_nx;  // output channel
+//reg [4:0] cnt_ofmap_chnl, cnt_ofmap_chnl_nx;  // output channel
+reg [4:0] cnt_ofmap_chnl_ff, cnt_ofmap_chnl_nx;  // output channel
 
 /* enable for some states */
-reg en_conv;
+reg en_conv[0:1];
 reg en_ld_ifmap_nx;
 
 /* forwarded wires */
@@ -118,7 +119,8 @@ always@(posedge clk) begin
     ifmap_base_y_last_ff <= 0;
     ifmap_chnl_last_ff <= 0;
     ofmap_chnl_last_ff <= 0;
-    en_conv <= 0;
+    en_conv[0] <= 0;
+    en_conv[1] <= 0;
     en_ld_knl <= 0;
     en_ld_ifmap <= 0;
     disable_acc <= 0;
@@ -132,7 +134,8 @@ always@(posedge clk) begin
     ifmap_base_y_last_ff <= ifmap_base_y_last;
     ifmap_chnl_last_ff <= ifmap_chnl_last;
     ofmap_chnl_last_ff <= ofmap_chnl_last;
-    en_conv <= state[IDX_CONV];
+    en_conv[0] <= state[IDX_CONV];
+    en_conv[1] <= en_conv[0];
     en_ld_knl <= state[IDX_LD_KNLS];
     en_ld_ifmap <= en_ld_ifmap_nx;
     disable_acc <= ifmap_chnl_first;
@@ -186,7 +189,7 @@ always @(*) begin // output logic: output memory address translator
 end
 
 always @(*) begin // output logic: dram enable signal
-  if (state[IDX_CONV] & en_conv) dram_en_wr = 1'b1;
+  if (state[IDX_CONV] & en_conv[1]) dram_en_wr = 1'b1;
   else dram_en_wr = 1'b0;
 end
 
@@ -331,7 +334,7 @@ always @(posedge clk) begin
   else        cnt_ofmap_chnl <= cnt_ofmap_chnl_nx;
 end
 always @(*) begin
-  if (state[IDX_CONV] & !ofmap_chnl_last) cnt_ofmap_chnl_nx = cnt_ofmap_chnl + 1;
+  if (en_conv[0] & !ofmap_chnl_last) cnt_ofmap_chnl_nx = cnt_ofmap_chnl + 1;
   else cnt_ofmap_chnl_nx = 0;
 end
 
