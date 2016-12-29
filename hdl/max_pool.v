@@ -60,7 +60,7 @@ wire cnt_ifmap_delta_y;
 reg [5:0] cnt_ifmap_z, cnt_ifmap_z_nx;
 
 /* wire for comparison */
-wire ifmap0_lt_ifmap1, ifmap_2_lt_ifmap3;
+wire ifmap0_lt_ifmap1, ifmap2_lt_ifmap3;
 wire [DATA_WIDTH - 1:0] ifmap01_max, ifmap23_max;
 
 // TODO: read parameters from dram
@@ -107,7 +107,7 @@ always@(*) begin
   /* output logic: input memory address translator */
   case (state)
     ST_LD_PARAM: addr_in = PARAM_BASE + {16'd0, cnt_param};
-    ST_POOL: addr_in = IFMAP_BASE + {
+    ST_POOL: addr_in = IFMAP_BASE + {4'd0,
       cnt_ifmap_z[3:0],
       cnt_ifmap_base_y[4:0] + {4'd0, cnt_ifmap_delta_y},
       cnt_ifmap_base_x[4:0] + {4'd0, cnt_ifmap_delta_x}};
@@ -136,7 +136,7 @@ end
 always@(*) begin
   /* output logic: output memory address translator */
   case (state)
-    ST_POOL: addr_out_buf_nx = OFMAP_BASE + {
+    ST_POOL: addr_out_buf_nx = OFMAP_BASE + { 3'd0,
       cnt_ifmap_z[3:0],
       {1'd0, cnt_ifmap_base_y[4:1]},
       {1'd0, cnt_ifmap_base_x[4:1]}

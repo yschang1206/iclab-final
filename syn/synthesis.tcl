@@ -1,7 +1,7 @@
 set TOPLEVEL "lenet"
 
 #change timing constraint here
-set TEST_CYCLE 8
+set TEST_CYCLE 12
 
 source -echo -verbose 0_readfile.tcl 
 source -echo -verbose 1_setting.tcl 
