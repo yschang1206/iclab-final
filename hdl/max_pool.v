@@ -23,10 +23,15 @@ module max_pool
   output wire done
 );
 
-localparam  ST_IDLE = 3'd0,
-            ST_LD_PARAM = 3'd1,
-            ST_POOL = 3'd3,
-            ST_DONE = 3'd4;
+localparam  IDX_IDLE     = 0,
+            IDX_LD_PARAM = 1,
+            IDX_POOL     = 2,
+            IDX_DONE     = 3;
+
+localparam  ST_IDLE     = 4'b0001,
+            ST_LD_PARAM = 4'b0010,
+            ST_POOL     = 4'b0100,
+            ST_DONE     = 4'b1000;
 
 localparam  PARAM_BASE = 0,
             OFMAP_BASE = 65536,
@@ -35,16 +40,16 @@ localparam  PARAM_BASE = 0,
 localparam  NUM_PARAM = 3;
 
 /* global regs, wires and integers */
-reg [DATA_WIDTH - 1:0] ifmap[0:3];
-reg [2:0] state, state_nx;
+reg [DATA_WIDTH - 1:0] ifmap [0:3];
+reg [4:0] state, state_nx;
 wire ifmap_base_x_last, ifmap_base_y_last, ifmap_z_last;
 wire ifmap_delta_x_last, ifmap_delta_y_last;
-reg [ADDR_WIDTH - 1:0] addr_out_buf[0:1];
+reg [ADDR_WIDTH - 1:0] addr_out_buf [0:1];
 reg [ADDR_WIDTH - 1:0] addr_out_buf_nx;
 reg [DATA_WIDTH - 1:0] data_out_nx;
-reg pixel_rdy[0:2];
+reg [2:0] en_pool;
 wire pool_done;
-reg pool_done_ff[0:2];
+reg [2:0] pool_done_ff;
 integer i;
 
 /* regs and wires for loading paramets */
@@ -87,22 +92,18 @@ assign pool_done = ifmap_base_x_last & ifmap_base_y_last &
        ifmap_delta_x_last & ifmap_delta_y_last & ifmap_z_last;
 
 /* finite state machine */
-always@(posedge clk) begin
-  /* state register */
-  if (~srstn)
-    state <= ST_IDLE;
-  else
-    state <= state_nx;
+always @(posedge clk) begin
+  if (~srstn) state <= ST_IDLE;
+  else        state <= state_nx;
 end
 
 always@(*) begin
-  /* next state logic */
   case (state)
-    ST_IDLE: state_nx = (enable) ? ST_LD_PARAM : ST_IDLE;
+    ST_IDLE:     state_nx = (enable) ? ST_LD_PARAM : ST_IDLE;
     ST_LD_PARAM: state_nx = (param_last_ff) ? ST_POOL : ST_LD_PARAM;
-    ST_POOL: state_nx = (pool_done_ff[2]) ? ST_DONE : ST_POOL;
-    ST_DONE: state_nx = ST_IDLE;
-    default: state_nx = ST_IDLE;
+    ST_POOL:     state_nx = (pool_done_ff[2]) ? ST_DONE : ST_POOL;
+    ST_DONE:     state_nx = ST_IDLE;
+    default:     state_nx = ST_IDLE;
   endcase
 end
 
@@ -118,14 +119,12 @@ always@(*) begin
   endcase
 end
 
-always@(posedge clk) begin
-  if (~srstn)
-    addr_out <= 0;
-  else
-    addr_out <= addr_out_buf[1];
+always @(posedge clk) begin
+  if (~srstn) addr_out <= 0;
+  else        addr_out <= addr_out_buf[1];
 end
 
-always@(posedge clk) begin
+always @(posedge clk) begin
   if (~srstn) begin
     addr_out_buf[0] <= 0;
     addr_out_buf[1] <= 0;
@@ -148,54 +147,41 @@ always@(*) begin
   endcase
 end
 
-always@(*) begin
-  /* output logic: dram enable signal */
-  case (state)
-    ST_LD_PARAM: begin
-      dram_en_wr = 0;
-      dram_en_rd = 1;
-    end
-    ST_POOL: begin
-      dram_en_wr = pixel_rdy[2];
-      dram_en_rd = 1;
-    end
-    default: begin
-      dram_en_wr = 0;
-      dram_en_rd = 0;
-    end
-  endcase
+always @(*) begin // output logic: dram enable signal
+  if (state[IDX_POOL] & en_pool[2]) dram_en_wr = 1'b1;
+  else dram_en_wr = 1'b0;
+end
+
+always @(*) begin // output logic: dram enable signal
+  if (state[IDX_IDLE] | state[IDX_DONE]) dram_en_rd = 1'b0;
+  else dram_en_rd = 1'b1;
 end
 
 /* output logic: done signal */
-assign done = (state == ST_DONE);
+assign done = state[IDX_DONE];
 
-always@(posedge clk) begin
+always @(posedge clk) begin
   if (~srstn) begin
-    pixel_rdy[0] <= 0;
-    pixel_rdy[1] <= 0;
-    pixel_rdy[2] <= 0;
+    en_pool[0] <= 0;
+    en_pool[1] <= 0;
+    en_pool[2] <= 0;
   end
   else begin
-    pixel_rdy[0] <= ifmap_delta_x_last & ifmap_delta_y_last;
-    pixel_rdy[1] <= pixel_rdy[0];
-    pixel_rdy[2] <= pixel_rdy[1];
+    en_pool[0] <= ifmap_delta_x_last & ifmap_delta_y_last;
+    en_pool[1] <= en_pool[0];
+    en_pool[2] <= en_pool[1];
   end
 end
 
 /* delayed registers */
-always@(posedge clk) begin
-  if (~srstn)
-    param_last_ff <= 0;
-  else
-    param_last_ff <= param_last;
+always @(posedge clk) begin
+  if (~srstn) param_last_ff <= 0;
+  else        param_last_ff <= param_last;
 end
 
 /* input feature map register file */
-always@(posedge clk) begin
-  if (~srstn)
-    for (i = 0; i < 4; i = i + 1)
-      ifmap[i] <= 0;
-  else begin
+always @(posedge clk) begin
+  if (state[IDX_POOL]) begin
     ifmap[3] <= data_in;
     for (i = 0; i < 3; i = i + 1)
       ifmap[i] <= ifmap[i + 1];
@@ -204,19 +190,14 @@ end
 
 /* parameter register file */
 always@(posedge clk) begin
-  if (~srstn) begin
-    ifmap_width <= 0;
-    ifmap_height <= 0;
-    ifmap_depth <= 0;
-  end
-  else if (state == ST_LD_PARAM) begin
+  if (state[IDX_LD_PARAM]) begin
     ifmap_depth <= data_in[5:0];
     ifmap_height <= ifmap_depth;
     ifmap_width <= ifmap_height;
   end
 end
 
-always@(posedge clk) begin
+always @(posedge clk) begin
   if (~srstn) begin
     pool_done_ff[0] <= 0;
     pool_done_ff[1] <= 0;
@@ -230,45 +211,35 @@ always@(posedge clk) begin
 end
 
 /* find the maximum value among the four pixel */
-always@(posedge clk) begin
-  if (~srstn)
-    data_out <= 0;
-  else
-    data_out <= data_out_nx;
+always @(posedge clk) begin
+  if (~srstn) data_out <= 0;
+  else data_out <= data_out_nx;
 end
 
 assign ifmap0_lt_ifmap1 = (ifmap[0] >= ifmap[1]);
 assign ifmap2_lt_ifmap3 = (ifmap[2] >= ifmap[3]);
 assign ifmap01_max = ifmap0_lt_ifmap1 ? ifmap[0] : ifmap[1];
 assign ifmap23_max = ifmap2_lt_ifmap3 ? ifmap[2] : ifmap[3];
-always@(*) begin
-  if (ifmap01_max >= ifmap23_max)
-    data_out_nx = ifmap01_max;
-  else
-    data_out_nx = ifmap23_max;
+always @(*) begin
+  if (ifmap01_max >= ifmap23_max) data_out_nx = ifmap01_max;
+  else data_out_nx = ifmap23_max;
 end
 
 /* counter to record how many parmaters have been read */
-always@(posedge clk) begin
-  if (~srstn)
-    cnt_param <= 0;
-  else
-    cnt_param <= cnt_param_nx;
+always @(posedge clk) begin
+  if (~srstn) cnt_param <= 0;
+  else        cnt_param <= cnt_param_nx;
 end
 
-always@(*) begin
-  if (state == ST_LD_PARAM)
-    cnt_param_nx = cnt_param + 1;
-  else
-    cnt_param_nx = 0;
+always @(*) begin
+  if (state[IDX_LD_PARAM]) cnt_param_nx = cnt_param + 1;
+  else cnt_param_nx = 0;
 end
 
 /* counter to record the base x of the currently loading pixel */
-always@(posedge clk) begin
-  if (~srstn)
-    cnt_ifmap_base_x <= 0;
-  else
-    cnt_ifmap_base_x <= cnt_ifmap_base_x_nx;
+always @(posedge clk) begin
+  if (~srstn) cnt_ifmap_base_x <= 0;
+  else        cnt_ifmap_base_x <= cnt_ifmap_base_x_nx;
 end
 
 always@(*) begin
@@ -324,18 +295,14 @@ always@(*) begin
 end
 
 /* counter to record the delta x and delta y of the currently loading pixel */
-always@(posedge clk) begin
-  if (~srstn)
-    cnt_ifmap_delta_xy <= 0;
-  else
-    cnt_ifmap_delta_xy <= cnt_ifmap_delta_xy_nx;
+always @(posedge clk) begin
+  if (~srstn) cnt_ifmap_delta_xy <= 0;
+  else cnt_ifmap_delta_xy <= cnt_ifmap_delta_xy_nx;
 end
 
 always@(*) begin
-  if (state == ST_POOL)
-    cnt_ifmap_delta_xy_nx = cnt_ifmap_delta_xy + 1;
-  else
-    cnt_ifmap_delta_xy_nx = 0;
+  if (state[IDX_POOL]) cnt_ifmap_delta_xy_nx = cnt_ifmap_delta_xy + 1;
+  else cnt_ifmap_delta_xy_nx = 0;
 end
 
 endmodule

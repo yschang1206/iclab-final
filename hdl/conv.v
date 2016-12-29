@@ -9,8 +9,8 @@ module conv
   parameter ADDR_WIDTH = 18,
   parameter KNL_WIDTH = 5'd5,
   parameter KNL_HEIGHT = 5'd5,
-  parameter KNL_SIZE = 5'd25,  // unit: 32 bits
-  parameter KNL_MAXNUM = 5'd16
+  parameter KNL_SIZE = 25,  // unit: 32 bits
+  parameter KNL_MAXNUM = 16
 )
 (
   input clk,
@@ -40,14 +40,14 @@ wire disable_acc;
 wire [5:0] num_knls;
 
 /* wires and registers for kernels */
-reg [DATA_WIDTH - 1:0] knls[0:400 - 1];
+reg signed [DATA_WIDTH - 1:0] knls[0:400 - 1];
 
 /* wires and registers for input feature map */
-reg [DATA_WIDTH - 1:0] ifmap[0:KNL_SIZE - 1];
+reg signed [DATA_WIDTH - 1:0] ifmap[0:KNL_SIZE - 1];
 
 /* wires and registers for output feature map */
-wire [DATA_WIDTH - 1:0] mac;
-reg [DATA_WIDTH - 1:0] mac_ff;
+wire signed [DATA_WIDTH - 1:0] mac;
+reg signed [DATA_WIDTH - 1:0] mac_ff;
 
 wire [4:0] cnt_ofmap_chnl;
 reg signed [DATA_WIDTH - 1:0] prod [0:KNL_SIZE - 1];

@@ -88,10 +88,10 @@ reg [2:0] cnt_ifmap_delta_y, cnt_ifmap_delta_y_nx;
 
 /* wires and registers for output feature map */
 //reg [4:0] cnt_ofmap_chnl, cnt_ofmap_chnl_nx;  // output channel
-reg [4:0] cnt_ofmap_chnl_ff, cnt_ofmap_chnl_nx;  // output channel
+reg [4:0] cnt_ofmap_chnl_nx;  // output channel
 
 /* enable for some states */
-reg en_conv[0:1];
+reg [1:0] en_conv;
 reg en_ld_ifmap_nx;
 
 /* forwarded wires */
@@ -114,7 +114,6 @@ always@(posedge clk) begin
   if (~srstn) begin
     addr_in_ff <= 0;
     param_last_ff <= 0;
-    cnt_ofmap_chnl_ff <= 0;
     ifmap_base_x_last_ff <= 0;
     ifmap_base_y_last_ff <= 0;
     ifmap_chnl_last_ff <= 0;
@@ -129,7 +128,6 @@ always@(posedge clk) begin
   else begin
     addr_in_ff <= addr_in;
     param_last_ff <= param_last;
-    cnt_ofmap_chnl_ff <= cnt_ofmap_chnl;
     ifmap_base_x_last_ff <= ifmap_base_x_last;
     ifmap_base_y_last_ff <= ifmap_base_y_last;
     ifmap_chnl_last_ff <= ifmap_chnl_last;
