@@ -46,11 +46,11 @@ reg [DATA_WIDTH - 1:0] knls[0:400 - 1];
 reg [DATA_WIDTH - 1:0] ifmap[0:KNL_SIZE - 1];
 
 /* wires and registers for output feature map */
-reg [DATA_WIDTH - 1:0] mac;
+wire [DATA_WIDTH - 1:0] mac;
 
 wire [4:0] cnt_ofmap_chnl_ff;
-reg signed [DATA_WIDTH - 1:0] products[0:KNL_SIZE - 1];
-reg signed [DATA_WIDTH - 1:0] products_roff[0:KNL_SIZE - 1];
+reg signed [DATA_WIDTH - 1:0] prod [0:KNL_SIZE - 1];
+reg signed [DATA_WIDTH - 1:0] prod_roff[0:KNL_SIZE - 1];
 
 conv_ctrl conv_ctrl
 (
@@ -110,20 +110,20 @@ end
 assign data_out = (disable_acc) ? mac : data_in + mac;
 
 always@(*) begin
-  for (i = 0; i < KNL_HEIGHT; i = i+1) begin
-    for (j = 0; j < KNL_WIDTH; j = j+1) begin
-      products[i*KNL_WIDTH + j] = knls[addr_knl_prod_nx[i*KNL_WIDTH + j]] * ifmap[j*KNL_HEIGHT + i];
-      products_roff[i*KNL_WIDTH + j] = products[i*KNL_WIDTH + j] >>> 16;
+  for (i = 0; i < 5; i = i+1) begin
+    for (j = 0; j < 5; j = j+1) begin
+      prod[i*5 + j] = knls[addr_knl_prod_nx[i*5 + j]] * ifmap[j*5 + i];
+      prod_roff[i*5 + j] = prod[i*5 + j] >>> 16;
     end
   end
 end
 
-always@(*) begin
-  mac = 0;
-  for (i = 0; i < KNL_HEIGHT; i = i+1)
-    for (j = 0; j < KNL_WIDTH; j = j+1)
-      mac = mac + products_roff[i * KNL_WIDTH + j];
-end
+assign mac =  prod_roff[0] + prod_roff[1] + prod_roff[2] + prod_roff[3] + prod_roff[4] +
+              prod_roff[5] + prod_roff[6] + prod_roff[7] + prod_roff[8] + prod_roff[9] + 
+              prod_roff[10] + prod_roff[11] + prod_roff[12] + prod_roff[13] + prod_roff[14] +
+              prod_roff[15] + prod_roff[16] + prod_roff[17] + prod_roff[18] + prod_roff[19] +
+              prod_roff[20] + prod_roff[21] + prod_roff[22] + prod_roff[23] + prod_roff[24];
+
 
 /* weight register file */
 always @(posedge clk) begin
