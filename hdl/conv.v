@@ -31,9 +31,10 @@ module conv
 wire en_ld_knl;
 wire en_ld_ifmap;
 wire disable_acc;
-wire [5:0] num_knls;
+wire [4:0] num_knls;
 wire [4:0] cnt_ofmap_chnl;
-
+wire [5:0] param_in;
+assign param_in = data_in[5:0];
 
 conv_ctrl conv_ctrl
 (
@@ -41,7 +42,7 @@ conv_ctrl conv_ctrl
   .clk(clk),
   .srstn(srstn),
   .enable(enable),
-  .data_in(data_in),
+  .param_in(param_in),
   .addr_in(addr_in),
   .addr_out(addr_out),
   .dram_en_wr(dram_en_wr),

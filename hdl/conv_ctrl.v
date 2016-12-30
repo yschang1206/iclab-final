@@ -13,7 +13,7 @@ module conv_ctrl
   input clk,
   input srstn,
   input enable,
-  input [DATA_WIDTH - 1:0] data_in,
+  input [5:0] param_in,
   output reg [ADDR_WIDTH - 1:0] addr_in,
   output reg [ADDR_WIDTH - 1:0] addr_out,
   output reg dram_en_wr,
@@ -24,7 +24,7 @@ module conv_ctrl
   output reg en_ld_knl,
   output reg en_ld_ifmap,
   output reg disable_acc,
-  output reg [5:0] num_knls,
+  output [4:0] num_knls,
   output reg [4:0] cnt_ofmap_chnl
 );
 
@@ -52,6 +52,10 @@ localparam  PARAM_BASE = 18'd0,
 
 localparam  NUM_PARAM = 6'd4; // TODO: add table
 
+localparam  IDX_KNLS   = 0, 
+            IDX_DEPTH  = 1,
+            IDX_HEIGHT = 2, 
+            IDX_WIDTH  = 3;
 /* global wires, registers and integers */
 integer i, j;
 reg [6:0] state, state_nx;
@@ -67,9 +71,10 @@ reg ifmap_base_x_last_ff, ifmap_base_y_last_ff;
 // delay one cycle to read and write psum of output feature map
 reg [ADDR_WIDTH - 1:0] addr_in_ff;
 
-/* registers for parameters */
+/* wires and registers for parameters */
 reg [5:0] cnt_param, cnt_param_nx;
-reg [5:0] ifmap_depth, ifmap_height, ifmap_width; // with num_knls
+reg [5:0] param_data [0:3];
+wire [5:0] ifmap_depth, ifmap_height, ifmap_width; // with num_knls
 wire param_last;
 reg param_last_ff;
 
@@ -93,9 +98,9 @@ reg [4:0] cnt_ofmap_chnl_nx;  // output channel
 reg en_ld_ifmap_nx;
 
 /* pipeline delay signals*/
-reg [2:0] en_conv;
+reg [3:0] en_conv;
 reg ofmap_chnl_last_ff;
-reg [4:0] cnt_ofmap_chnl_ff [0:2];
+reg [4:0] cnt_ofmap_chnl_ff [0:1];
 /* forwarded wires */
 assign cnt_ifmap_chnl = cnt_knl_chnl;
 
@@ -108,7 +113,7 @@ assign ifmap_base_x_last  = (cnt_ifmap_base_x + KNL_WIDTH  == ifmap_width);
 assign ifmap_base_y_last  = (cnt_ifmap_base_y + KNL_HEIGHT == ifmap_height);
 assign ifmap_chnl_last    = (cnt_ifmap_chnl + 1 == ifmap_depth);
 assign ifmap_chnl_first   = (cnt_ifmap_chnl == 0);
-assign ofmap_chnl_last    = (cnt_ofmap_chnl_ff[0] + 1 == num_knls);
+assign ofmap_chnl_last    = (cnt_ofmap_chnl_ff[1] + 1 == num_knls);
 assign param_last = (cnt_param == NUM_PARAM-1);
 
 /* delayed registers */
@@ -141,16 +146,20 @@ always@(posedge clk) begin
   if (~srstn) begin
     ofmap_chnl_last_ff <= 0;
     cnt_ofmap_chnl_ff[0] <= 0;
+    cnt_ofmap_chnl_ff[1] <= 0;
     en_conv[0] <= 0;
     en_conv[1] <= 0;
     en_conv[2] <= 0;
+    en_conv[3] <= 0;
   end
   else begin
     ofmap_chnl_last_ff <= ofmap_chnl_last;
     cnt_ofmap_chnl_ff[0] <= cnt_ofmap_chnl;
+    cnt_ofmap_chnl_ff[1] <= cnt_ofmap_chnl_ff[0];
     en_conv[0] <= state[IDX_CONV];
     en_conv[1] <= en_conv[0];
     en_conv[2] <= en_conv[1];
+    en_conv[3] <= en_conv[2];
   end
 end
 
@@ -189,7 +198,7 @@ always@(*) begin // input memory address translator
                         cnt_ifmap_base_y[4:0] + {2'd0, cnt_ifmap_delta_y[2:0]},
                         cnt_ifmap_base_x[4:0] + {2'd0, cnt_ifmap_delta_x[2:0]} + KNL_WIDTH - 5'd1};
     5'b00001 : addr_in = OFMAP_BASE + {4'd0,
-                        cnt_ofmap_chnl_ff[0][3:0], cnt_ifmap_base_y[4:0], cnt_ifmap_base_x[4:0]};
+                        cnt_ofmap_chnl_ff[1][3:0], cnt_ifmap_base_y[4:0], cnt_ifmap_base_x[4:0]};
     default: addr_in = 0;
   endcase
 end
@@ -200,7 +209,7 @@ always @(*) begin // output logic: output memory address translator
 end
 
 always @(*) begin // output logic: dram enable signal
-  if (state[IDX_CONV] & en_conv[2]) dram_en_wr = 1'b1;
+  if (state[IDX_CONV] & en_conv[3]) dram_en_wr = 1'b1;
   else dram_en_wr = 1'b0;
 end
 
@@ -217,13 +226,18 @@ end
 /* output logic: done signal */
 assign done = state[IDX_DONE];
 
-/* parameter register file */
+/* parameter register file and wires */
+assign num_knls     = param_data[IDX_KNLS][4:0]; 
+assign ifmap_depth  = param_data[IDX_DEPTH];
+assign ifmap_height = param_data[IDX_HEIGHT];
+assign ifmap_width  = param_data[IDX_WIDTH];
+
 always @(posedge clk) begin
   if (state[IDX_LD_PARAM]) begin
-    num_knls <= data_in[5:0];
-    ifmap_depth <= num_knls;
-    ifmap_height <= ifmap_depth;
-    ifmap_width <= ifmap_height;
+    param_data[IDX_KNLS]   <= param_in;
+    param_data[IDX_DEPTH]  <= param_data[IDX_KNLS];
+    param_data[IDX_HEIGHT] <= param_data[IDX_DEPTH];
+    param_data[IDX_WIDTH]  <= param_data[IDX_HEIGHT];
   end
 end
 

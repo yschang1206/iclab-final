@@ -22,7 +22,7 @@ module pe
   input en_ld_knl,
   input en_ld_ifmap,
   input disable_acc,
-  input [5:0] num_knls,
+  input [4:0] num_knls,
   input [4:0] cnt_ofmap_chnl
 );
 
@@ -48,7 +48,7 @@ reg signed [DATA_WIDTH - 1:0] prod_roff[0:KNL_SIZE - 1];
 reg [8:0] addr_knl_prod_nx [0:24];
 reg [8:0] addr_knl_prod [0:24];
 wire [8:0] addr_knl_tmp;
-assign addr_knl_tmp = (5'd16 - num_knls[4:0] + cnt_ofmap_chnl) * 5'd25;
+assign addr_knl_tmp = (5'd16 - num_knls + cnt_ofmap_chnl) * 5'd25;
                   //  (KNL_MAXNUM - num_knls[4:0] + {1'b0, cnt_ofmap_chnl_ff[3:0]}) * KNL_SIZE
 always@(*) begin
   addr_knl_prod_nx[0] = addr_knl_tmp + 9'd0;
@@ -89,12 +89,20 @@ always@(posedge clk) begin
   else        mac_ff <= mac;
 end
 
+reg signed [DATA_WIDTH - 1:0] knls_ff [0:24];
+
+always @(posedge clk) begin
+  for (i = 0; i < 25; i=i+1) begin
+    knls_ff[i] <= knls[addr_knl_prod[i]];
+  end
+end 
+
 assign data_out = (disable_acc) ? mac_ff : data_in + mac_ff;
 
 always@(*) begin
   for (i = 0; i < 5; i = i+1) begin
     for (j = 0; j < 5; j = j+1) begin
-      prod[i*5 + j] = knls[addr_knl_prod[i*5 + j]] * ifmap[j*5 + i];
+      prod[i*5 + j] = knls_ff[i*5 + j] * ifmap[j*5 + i];
       prod_roff[i*5 + j] = prod[i*5 + j] >>> 16;
     end
   end
