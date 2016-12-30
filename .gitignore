@@ -17,8 +17,10 @@ sim/sim_post
 sim/sim_pre
 sim/sim_nLint
 syn/netlist
+sim/top.rc
 
 nLint*
 *.o
 *.fsdb
 *.log
+*.rc

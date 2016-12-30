@@ -13,12 +13,6 @@
 # Verdi      : $ make xxx.verdi
 # Clean      : $ make clean
 
-# CAD-Tools & shell-commands
-VLOG  = ncverilog
-LINT  = nLint
-DC  = dc_shell
-RM  = rm -rf
-
 # Working Directories
 HDL_DIR =../hdl/
 SYN_DIR =../syn/
@@ -27,63 +21,63 @@ SYN_DIR =../syn/
 TESTBENCH = test_top.v
 
 # misc
-TOP   = top_pipe
-
-# arguments
-VLOGARG =+access+r
+TOP   = top
 
 # temp files
-TEMP  =INCA_libs \
-	VerdiLog \
-	nWaveLog \
-	nLintDB \
-	nLintLog \
-	novas.rc \
-	novas.conf \
-	*.fsdb \
-	*.log \
-	*.key \
-	*~ \
-	*.X 
-SYN_TEMP=*.log \
-	alib-52 \
-	$(TOP) \
-	netlist \
-	report \
-	*.svf \
-	*.key \
-	*~
-  
+SIM_TEMP =  INCA_libs \
+						verdiLog \
+						nLintDB \
+						nLintLog \
+						sim_nLint \
+						sim_pre \
+						sim_gate \
+						sim_post \
+						*.log \
+						*~
+
+SYN_TEMP =  alib-52 \
+						$(TOP) \
+						netlist \
+						report \
+						*.svf \
+						*.log \
+						*~
+
 # Targets
-lint :
-	rm -rf sim_nLint
+lint:
+	make simclean
 	mkdir sim_nLint
 	nLint -f $(HDL_DIR)hdl.f -out nLint.txt
 	mv nLintDB sim_nLint
 	mv nLintLog sim_nLint
 	cat nLint.txt | less
 
-presim :
-	rm -rf sim_pre
+nwave:
+	verdi & -nWave -f *.fsdb
+
+presim:
+	make simclean
 	mkdir sim_pre
 	ncverilog -f sim_pre.f
 	mv INCA_libs sim_pre
-	mv ncverilog.log sim_pre
-	mv novas_dump.log sim_pre
-	# cat ./sim_pre/ncverilog.log | less
+	mv *.log sim_pre
+# cat ./sim_pre/ncverilog.log | less
 
-gatesim :
-	ncverilog -f sim_gate.f | tee gatesim_log.log
-syn :
+gatesim:
+	make simclean
+	mkdir sim_gate
+	ncverilog -f sim_gate.f -warnmax 0
+	mv INCA_libs sim_pre
+	mv *.log sim_pre
+
+syn:
 	cd $(SYN_DIR) && dc_shell -f synthesis.tcl | tee da.log
 
 # clean working directories
-veryclean: hdlclean simclean synclean
-hdlclean :
-	cd $(HDL_DIR) && $(RM) $(TEMP)
-simclean :
-	cd rm -rf $(TEMP)
-synclean :
+simclean:
+	rm -rf $(SIM_TEMP)
+
+synclean:
 	cd $(SYN_DIR) && $(RM) $(SYN_TEMP)
 
 
@@ -93,42 +87,46 @@ synclean :
 INCLIST = ../hdl/$(basename $@).f
 NETLIST = ../syn/netlist/fir1_syn.v
 GATE = /usr/cad/synopsys/SAED32_EDK/lib/stdcell_hvt/verilog/saed32nm_hvt.tv
-TEST_DEFINE_FILE = $(basename $@)_test_define.v
+# TEST_DEFINE_FILE = $(basename $@)_test_define.v
 # DEFINE_FILE = ../hdl/define.v
 TESTBENCH = $(basename $@)_test.v
 LIB = -v /usr/cad/synopsys/SAED32_EDK/synthesis/vG-2012.06-SP5/dw/dw02/src_ver/DW02_prod_sum1.v
 OPT = +notimingcheck
+
 %.verdi :
-	cd verdi; \
+	cd verdi
 	verdi -autoalias -logfile ./verdi_compiler.log \
 	+incdir + $(INCDIR) $(TEST_DEFINE_FILE) \
 	$(DEFINE_FILE) $(LIB) $(TESTBENCH) &
+
+%.lint:
+	make simclean
+	rm -rf sim_nLint
+	mkdir sim_nLint
+	nLint $(HDL_DIR)$(basename $@).v -out nLint.txt
+	mv nLintDB sim_nLint
+	mv nLintLog sim_nLint
+	cat nLint.txt | less
+
+%.com :
+	ncverilog -c $(DEFINE_FILE) $(TESTBENCH) -F $(INCLIST)
+
+%.sim :
+	make simclean
+	mkdir sim_pre
+	ncverilog $(DEFINE_FILE) $(TESTBENCH) $(LIB) -F $(INCLIST)
+	mv INCA_libs sim_pre
+	mv *.log sim_pre
+
+%.posim :
+	make simclean
+	mkdir sim_post
+	ncverilog $(DEFINE_FILE) $(TESTBENCH) $(LIB) +vg $(GATE) $(NETLIST) +define+SDF
+	mv INCA_libs sim_post
+	mv *.log sim_post
+
 # %.vcs :
 #   make clean
 #   vcs -R -full64 + v2k $(OPT) +define + $(DEFINE_FILE) +incdir + $(INCDIR) $(TEST_DEFINE_FILE)\
 #   $(DEFINE_FILE) $(LIB) $(TESTBENCH) \
 #   -l vcs.log -debug_pp +vcs_d + vpi + memcbk -P
-%.lint :
-	mkdir lint; \
-	nLint -2001 -beauty -F $(INCLIST) \
-	-maxseverity 2 -minseverity 2 -out $(basename $@)_warn.log; \
-	nLint -rdb nLintDB -beauty -maxseverity 3 -minseverity 3 -out $(basename $@)_error.log; \
-	nLint -rdb nLintDB -beauty -maxseverity 4 -minseverity 4 -out $(basename $@)_fatal.log; \
-	mv *.log lint
-%.com :
-	ncverilog -c $(DEFINE_FILE) $(TESTBENCH) -F $(INCLIST)
-%.sim :
-	make clean; \
-	mkdir simu; \
-	ncverilog $(DEFINE_FILE) $(TESTBENCH) $(LIB) -F $(INCLIST) +access+r
-	mv INCA_libs simu; \
-	mv *.log simu
-%.posim :
-	make clean; \
-	mkdir simu; \
-	ncverilog $(DEFINE_FILE) $(TESTBENCH) $(LIB) +vg $(GATE) $(NETLIST) +define+SDF +access+r
-	mv INCA_libs simu; \
-	mv *.log simu
-	mv *.X simu
-clean :
-	rm -rf simu

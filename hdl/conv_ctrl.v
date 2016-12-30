@@ -54,7 +54,7 @@ localparam  NUM_PARAM = 6'd4; // TODO: add table
 
 /* global wires, registers and integers */
 integer i, j;
-reg [7:0] state, state_nx;
+reg [6:0] state, state_nx;
 wire knl_wts_last, knl_id_last;
 wire ifmap_delta_x_last, ifmap_delta_y_last;
 wire ifmap_base_x_last, ifmap_base_y_last;
@@ -64,7 +64,6 @@ wire ofmap_chnl_last;
 
 reg ifmap_chnl_last_ff;
 reg ifmap_base_x_last_ff, ifmap_base_y_last_ff;
-reg ofmap_chnl_last_ff;
 // delay one cycle to read and write psum of output feature map
 reg [ADDR_WIDTH - 1:0] addr_in_ff;
 
@@ -91,9 +90,12 @@ reg [2:0] cnt_ifmap_delta_y, cnt_ifmap_delta_y_nx;
 reg [4:0] cnt_ofmap_chnl_nx;  // output channel
 
 /* enable for some states */
-reg [1:0] en_conv;
 reg en_ld_ifmap_nx;
 
+/* pipeline delay signals*/
+reg [2:0] en_conv;
+reg ofmap_chnl_last_ff;
+reg [4:0] cnt_ofmap_chnl_ff [0:2];
 /* forwarded wires */
 assign cnt_ifmap_chnl = cnt_knl_chnl;
 
@@ -106,7 +108,7 @@ assign ifmap_base_x_last  = (cnt_ifmap_base_x + KNL_WIDTH  == ifmap_width);
 assign ifmap_base_y_last  = (cnt_ifmap_base_y + KNL_HEIGHT == ifmap_height);
 assign ifmap_chnl_last    = (cnt_ifmap_chnl + 1 == ifmap_depth);
 assign ifmap_chnl_first   = (cnt_ifmap_chnl == 0);
-assign ofmap_chnl_last    = (cnt_ofmap_chnl + 1 == num_knls);
+assign ofmap_chnl_last    = (cnt_ofmap_chnl_ff[0] + 1 == num_knls);
 assign param_last = (cnt_param == NUM_PARAM-1);
 
 /* delayed registers */
@@ -117,9 +119,6 @@ always@(posedge clk) begin
     ifmap_base_x_last_ff <= 0;
     ifmap_base_y_last_ff <= 0;
     ifmap_chnl_last_ff <= 0;
-    ofmap_chnl_last_ff <= 0;
-    en_conv[0] <= 0;
-    en_conv[1] <= 0;
     en_ld_knl <= 0;
     en_ld_ifmap <= 0;
     disable_acc <= 0;
@@ -131,13 +130,27 @@ always@(posedge clk) begin
     ifmap_base_x_last_ff <= ifmap_base_x_last;
     ifmap_base_y_last_ff <= ifmap_base_y_last;
     ifmap_chnl_last_ff <= ifmap_chnl_last;
-    ofmap_chnl_last_ff <= ofmap_chnl_last;
-    en_conv[0] <= state[IDX_CONV];
-    en_conv[1] <= en_conv[0];
     en_ld_knl <= state[IDX_LD_KNLS];
     en_ld_ifmap <= en_ld_ifmap_nx;
     disable_acc <= ifmap_chnl_first;
     state <= state_nx;
+  end
+end
+
+always@(posedge clk) begin
+  if (~srstn) begin
+    ofmap_chnl_last_ff <= 0;
+    cnt_ofmap_chnl_ff[0] <= 0;
+    en_conv[0] <= 0;
+    en_conv[1] <= 0;
+    en_conv[2] <= 0;
+  end
+  else begin
+    ofmap_chnl_last_ff <= ofmap_chnl_last;
+    cnt_ofmap_chnl_ff[0] <= cnt_ofmap_chnl;
+    en_conv[0] <= state[IDX_CONV];
+    en_conv[1] <= en_conv[0];
+    en_conv[2] <= en_conv[1];
   end
 end
 
@@ -176,7 +189,7 @@ always@(*) begin // input memory address translator
                         cnt_ifmap_base_y[4:0] + {2'd0, cnt_ifmap_delta_y[2:0]},
                         cnt_ifmap_base_x[4:0] + {2'd0, cnt_ifmap_delta_x[2:0]} + KNL_WIDTH - 5'd1};
     5'b00001 : addr_in = OFMAP_BASE + {4'd0,
-                        cnt_ofmap_chnl[3:0], cnt_ifmap_base_y[4:0], cnt_ifmap_base_x[4:0]};
+                        cnt_ofmap_chnl_ff[0][3:0], cnt_ifmap_base_y[4:0], cnt_ifmap_base_x[4:0]};
     default: addr_in = 0;
   endcase
 end
@@ -187,7 +200,7 @@ always @(*) begin // output logic: output memory address translator
 end
 
 always @(*) begin // output logic: dram enable signal
-  if (state[IDX_CONV] & en_conv[1]) dram_en_wr = 1'b1;
+  if (state[IDX_CONV] & en_conv[2]) dram_en_wr = 1'b1;
   else dram_en_wr = 1'b0;
 end
 
