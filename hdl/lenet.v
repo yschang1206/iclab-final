@@ -39,6 +39,7 @@ wire dram_valid_conv;
 wire [DATA_WIDTH - 1:0] data_out_conv;
 wire [ADDR_WIDTH - 1:0] addr_in_conv, addr_out_conv;
 wire dram_en_wr_conv, dram_en_rd_conv;
+wire done_conv;
 
 conv conv(
   .clk(clk),
@@ -60,6 +61,7 @@ wire dram_valid_relu;
 wire [DATA_WIDTH - 1:0] data_out_relu;
 wire [ADDR_WIDTH - 1:0] addr_in_relu, addr_out_relu;
 wire dram_en_wr_relu, dram_en_rd_relu;
+wire done_relu;
 
 relu relu(
   .clk(clk),
@@ -81,6 +83,7 @@ wire dram_valid_pool;
 wire [DATA_WIDTH - 1:0] data_out_pool;
 wire [ADDR_WIDTH - 1:0] addr_in_pool, addr_out_pool;
 wire dram_en_wr_pool, dram_en_rd_pool;
+wire done_pool;
 
 max_pool max_pool(
   .clk(clk),

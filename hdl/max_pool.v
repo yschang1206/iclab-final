@@ -41,7 +41,7 @@ localparam  NUM_PARAM = 3;
 
 /* global regs, wires and integers */
 reg [DATA_WIDTH - 1:0] ifmap [0:3];
-reg [4:0] state, state_nx;
+reg [3:0] state, state_nx;
 wire ifmap_base_x_last, ifmap_base_y_last, ifmap_z_last;
 wire ifmap_delta_x_last, ifmap_delta_y_last;
 reg [ADDR_WIDTH - 1:0] addr_out_buf [0:1];
@@ -181,7 +181,11 @@ end
 
 /* input feature map register file */
 always @(posedge clk) begin
-  if (state[IDX_POOL]) begin
+  if (~srstn) begin
+    for (i = 0; i < 4; i = i + 1)
+      ifmap[i] <= 0;
+  end
+  else if (state[IDX_POOL]) begin
     ifmap[3] <= data_in;
     for (i = 0; i < 3; i = i + 1)
       ifmap[i] <= ifmap[i + 1];
@@ -190,7 +194,12 @@ end
 
 /* parameter register file */
 always@(posedge clk) begin
-  if (state[IDX_LD_PARAM]) begin
+  if (~srstn) begin
+    ifmap_depth <= 0;
+    ifmap_height <= 0;
+    ifmap_width <= 0;
+  end
+  else if (state[IDX_LD_PARAM]) begin
     ifmap_depth <= data_in[5:0];
     ifmap_height <= ifmap_depth;
     ifmap_width <= ifmap_height;

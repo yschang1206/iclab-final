@@ -1,10 +1,10 @@
 /**
  * test_dram.v
  */
-
+`timescale  1ns/100ps
 module test_dram;
 
-parameter CYCLE = 10;
+parameter CYCLE = 16;
 parameter END_CYCLE = 4000000;
 parameter DATA_WIDTH = 32;
 parameter ADDR_WIDTH = 18;
@@ -135,10 +135,26 @@ initial begin
   $finish;
 end
 
+initial begin
+  `ifdef GATESIM
+    while (1) begin
+      #(CYCLE * 10000);
+      $display("%d ns: Still working", $time);
+    end
+  `endif
+end
+
+
 /* fsdb */
 initial begin
-  $fsdbDumpfile("test_dram.fsdb");
-  $fsdbDumpvars();
+  `ifdef GATESIM
+    $fsdbDumpfile("test_dram_gatesim.fsdb");
+    $fsdbDumpvars();
+    $sdf_annotate("../syn/netlist/lenet_syn.sdf",lenet);
+  `else
+    $fsdbDumpfile("test_dram.fsdb");
+    $fsdbDumpvars();
+  `endif
 end
 
 endmodule

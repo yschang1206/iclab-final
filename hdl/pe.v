@@ -23,7 +23,7 @@ module pe
   input en_ld_ifmap,
   input disable_acc,
   input [4:0] num_knls,
-  input [4:0] cnt_ofmap_chnl
+  input [3:0] cnt_ofmap_chnl
 );
 
 /* local parameters */
@@ -38,66 +38,69 @@ reg signed [DATA_WIDTH - 1:0] knls[0:400 - 1];
 reg signed [DATA_WIDTH - 1:0] ifmap[0:KNL_SIZE - 1];
 
 /* wires and registers for output feature map */
-wire signed [DATA_WIDTH - 1:0] mac;
-reg signed [DATA_WIDTH - 1:0] mac_ff;
+wire signed [DATA_WIDTH - 1:0] mac_nx;
+reg signed [DATA_WIDTH - 1:0] mac;
 
 reg signed [DATA_WIDTH - 1:0] prod [0:KNL_SIZE - 1];
 reg signed [DATA_WIDTH - 1:0] prod_roff[0:KNL_SIZE - 1];
 
-
-reg [8:0] addr_knl_prod_nx [0:24];
-reg [8:0] addr_knl_prod [0:24];
-wire [8:0] addr_knl_tmp;
-assign addr_knl_tmp = (5'd16 - num_knls + cnt_ofmap_chnl) * 5'd25;
-                  //  (KNL_MAXNUM - num_knls[4:0] + {1'b0, cnt_ofmap_chnl_ff[3:0]}) * KNL_SIZE
-always@(*) begin
-  addr_knl_prod_nx[0] = addr_knl_tmp + 9'd0;
-  addr_knl_prod_nx[1] = addr_knl_tmp + 9'd1;
-  addr_knl_prod_nx[2] = addr_knl_tmp + 9'd2;
-  addr_knl_prod_nx[3] = addr_knl_tmp + 9'd3;
-  addr_knl_prod_nx[4] = addr_knl_tmp + 9'd4;
-  addr_knl_prod_nx[5] = addr_knl_tmp + 9'd5;
-  addr_knl_prod_nx[6] = addr_knl_tmp + 9'd6;
-  addr_knl_prod_nx[7] = addr_knl_tmp + 9'd7;
-  addr_knl_prod_nx[8] = addr_knl_tmp + 9'd8;
-  addr_knl_prod_nx[9] = addr_knl_tmp + 9'd9;
-  addr_knl_prod_nx[10] = addr_knl_tmp + 9'd10;
-  addr_knl_prod_nx[11] = addr_knl_tmp + 9'd11;
-  addr_knl_prod_nx[12] = addr_knl_tmp + 9'd12;
-  addr_knl_prod_nx[13] = addr_knl_tmp + 9'd13;
-  addr_knl_prod_nx[14] = addr_knl_tmp + 9'd14;
-  addr_knl_prod_nx[15] = addr_knl_tmp + 9'd15;
-  addr_knl_prod_nx[16] = addr_knl_tmp + 9'd16;
-  addr_knl_prod_nx[17] = addr_knl_tmp + 9'd17;
-  addr_knl_prod_nx[18] = addr_knl_tmp + 9'd18;
-  addr_knl_prod_nx[19] = addr_knl_tmp + 9'd19;
-  addr_knl_prod_nx[20] = addr_knl_tmp + 9'd20;
-  addr_knl_prod_nx[21] = addr_knl_tmp + 9'd21;
-  addr_knl_prod_nx[22] = addr_knl_tmp + 9'd22;
-  addr_knl_prod_nx[23] = addr_knl_tmp + 9'd23;
-  addr_knl_prod_nx[24] = addr_knl_tmp + 9'd24;
-end
+wire [4:0] addr_knl_prod_tmp;
+wire [3:0] addr_knl_prod_nx;
+reg [3:0] addr_knl_prod;
+assign addr_knl_prod_tmp = 5'd16 - num_knls + {1'd0,cnt_ofmap_chnl};
+                  //  KNL_MAXNUM - num_knls + cnt_ofmap_chnl_ff
+assign addr_knl_prod_nx = addr_knl_prod_tmp[3:0];
 
 always @(posedge clk) begin
-  for (i = 0; i < 25; i=i+1) begin
-    addr_knl_prod[i] <= addr_knl_prod_nx[i];
-  end
+  addr_knl_prod <= addr_knl_prod_nx;
 end
 /* convolution process */
 always@(posedge clk) begin
-  if (~srstn) mac_ff <= 0;
-  else        mac_ff <= mac;
+  if (~srstn) mac <= 0;
+  else        mac <= mac_nx;
 end
 
 reg signed [DATA_WIDTH - 1:0] knls_ff [0:24];
+reg signed [DATA_WIDTH - 1:0] knls_data [0:24];
 
+always @(*) begin
+  for (i = 0; i < 25; i = i+1) begin
+    case (addr_knl_prod) // synopsys parallel_case
+      4'd0 : knls_data[i] = knls[0+i];
+      4'd1 : knls_data[i] = knls[25+i];
+      4'd2 : knls_data[i] = knls[50+i];
+      4'd3 : knls_data[i] = knls[75+i];
+      4'd4 : knls_data[i] = knls[100+i];
+      4'd5 : knls_data[i] = knls[125+i];
+      4'd6 : knls_data[i] = knls[150+i];
+      4'd7 : knls_data[i] = knls[175+i];
+      4'd8 : knls_data[i] = knls[200+i];
+      4'd9 : knls_data[i] = knls[225+i];
+      4'd10 : knls_data[i] = knls[250+i];
+      4'd11 : knls_data[i] = knls[275+i];
+      4'd12 : knls_data[i] = knls[300+i];
+      4'd13 : knls_data[i] = knls[325+i];
+      4'd14 : knls_data[i] = knls[350+i];
+      default : knls_data[i] = knls[375+i];
+    endcase
+  end
+end
+
+/* ------------------------------------------------------------- */
 always @(posedge clk) begin
-  for (i = 0; i < 25; i=i+1) begin
-    knls_ff[i] <= knls[addr_knl_prod[i]];
+  if (~srstn) begin
+    for (i = 0; i < 25; i=i+1) begin
+      knls_ff[i] <= 0;
+    end
+  end
+  else begin
+    for (i = 0; i < 25; i=i+1) begin
+      knls_ff[i] <= knls_data[i];
+    end
   end
 end 
 
-assign data_out = (disable_acc) ? mac_ff : data_in + mac_ff;
+assign data_out = (disable_acc) ? mac : data_in + mac;
 
 always@(*) begin
   for (i = 0; i < 5; i = i+1) begin
@@ -108,16 +111,20 @@ always@(*) begin
   end
 end
 
-assign mac =  prod_roff[0] + prod_roff[1] + prod_roff[2] + prod_roff[3] + prod_roff[4] +
-              prod_roff[5] + prod_roff[6] + prod_roff[7] + prod_roff[8] + prod_roff[9] + 
-              prod_roff[10] + prod_roff[11] + prod_roff[12] + prod_roff[13] + prod_roff[14] +
-              prod_roff[15] + prod_roff[16] + prod_roff[17] + prod_roff[18] + prod_roff[19] +
-              prod_roff[20] + prod_roff[21] + prod_roff[22] + prod_roff[23] + prod_roff[24];
+assign mac_nx = prod_roff[0] + prod_roff[1] + prod_roff[2] + prod_roff[3] + prod_roff[4] +
+                prod_roff[5] + prod_roff[6] + prod_roff[7] + prod_roff[8] + prod_roff[9] + 
+                prod_roff[10] + prod_roff[11] + prod_roff[12] + prod_roff[13] + prod_roff[14] +
+                prod_roff[15] + prod_roff[16] + prod_roff[17] + prod_roff[18] + prod_roff[19] +
+                prod_roff[20] + prod_roff[21] + prod_roff[22] + prod_roff[23] + prod_roff[24];
 
 
 /* weight register file */
 always @(posedge clk) begin
-  if (en_ld_knl) begin
+  if (~srstn) begin
+    for (i = 0; i < KNL_MAXNUM*KNL_SIZE; i = i+1)
+      knls[i] <= 0;
+  end
+  else if (en_ld_knl) begin
     knls[KNL_MAXNUM*KNL_SIZE - 1] <= data_in;
     for (i = 0; i < KNL_MAXNUM*KNL_SIZE - 1; i = i+1)
       knls[i] <= knls[i+1];
@@ -126,7 +133,11 @@ end
 
 /* input feature map register file */
 always @(posedge clk) begin
-  if (en_ld_ifmap) begin
+  if (~srstn) begin
+    for (i = 0; i < KNL_SIZE; i = i+1)
+      ifmap[i] <= 0;
+  end
+  else if (en_ld_ifmap) begin
     ifmap[KNL_SIZE - 1] <= data_in;
     for (i = 0; i < KNL_SIZE-1; i = i+1)
       ifmap[i] <= ifmap[i+1];
