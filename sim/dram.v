@@ -33,9 +33,7 @@ end
 
 // Port B for read
 always@(posedge clk) begin
-  if (~srstn)
-    data_out <= 0;
-  else if (en_rd)
+  if (en_rd)
     data_out <= data[addr_rd];
   else
     data_out <= 0;
