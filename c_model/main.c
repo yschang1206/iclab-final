@@ -147,8 +147,8 @@ int main(int argc, char *argv[])
     knls = init_kernels(w_knl, h_knl, d, n, l);
     print_knl_data(knls, n, l);
     /* convolution layer */
-    //ofmap = conv_tbl(knls, ifmap, n, tbl);
-    ofmap = conv(knls, ifmap, n);
+    ofmap = conv_tbl(knls, ifmap, n, tbl);
+    //ofmap = conv(knls, ifmap, n);
     /* free obsolete objects */
     free_kernels(knls, n);
     free_fmap(ifmap);

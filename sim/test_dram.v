@@ -72,12 +72,14 @@ initial begin
   enable = 1;
   @(negedge clk);
   enable = 0;
+  $display("%d ns: Enabling", $time);
   dram_0.load_l0_pre_data;
   @(negedge clk);
   rdy_data = 1;
   @(negedge clk);
   rdy_data = 0;
   wait(done_one_layer == 1);
+  $display("%d ns: Layer 0 (convolution) done", $time);
 
   dram_0.load_l0_post_data;
   @(negedge clk);
@@ -85,6 +87,7 @@ initial begin
   @(negedge clk);
   rdy_data = 0;
   wait(done_one_layer == 1);
+  $display("%d ns: Layer 0 (bias/relu) done", $time);
 
   dram_0.load_l1_data;
   @(negedge clk);
@@ -93,6 +96,7 @@ initial begin
   rdy_data = 0;
   @(negedge clk);
   wait(done_one_layer == 1);
+  $display("%d ns: Layer 1 (max pooling) done", $time);
 
   dram_0.load_l2_pre_data;
   @(negedge clk);
@@ -100,6 +104,7 @@ initial begin
   @(negedge clk);
   rdy_data = 0;
   wait(done_one_layer == 1);
+  $display("%d ns: Layer 2 (convolution) done", $time);
 
   dram_0.load_l2_post_data;
   @(negedge clk);
@@ -107,6 +112,7 @@ initial begin
   @(negedge clk);
   rdy_data = 0;
   wait(done_one_layer == 1);
+  $display("%d ns: Layer 2 (bias/relu) done", $time);
 
   dram_0.load_l3_data;
   @(negedge clk);
@@ -115,6 +121,7 @@ initial begin
   rdy_data = 0;
   @(negedge clk);
   wait(done_one_layer == 1);
+  $display("%d ns: Layer 3 (max pooling) done", $time);
 
   dram_0.load_l4_l5_data;
   @(negedge clk);
@@ -122,6 +129,7 @@ initial begin
   @(negedge clk);
   rdy_data = 0;
   @(negedge clk);
+  $display("%d ns: Layer 4 and 5 (fully connected) done", $time);
 end
 
 /* result checker */

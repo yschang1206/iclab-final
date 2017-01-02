@@ -13,7 +13,7 @@ module conv_ctrl
   input clk,
   input srstn,
   input enable,
-  input [5:0] param_in,
+  input [DATA_WIDTH - 1:0] data_in,
   output reg [ADDR_WIDTH - 1:0] addr_in,
   output reg [ADDR_WIDTH - 1:0] addr_out,
   output reg dram_en_wr,
@@ -25,7 +25,8 @@ module conv_ctrl
   output reg en_ld_ifmap,
   output reg disable_acc,
   output [4:0] num_knls,
-  output reg [3:0] cnt_ofmap_chnl
+  output reg [3:0] cnt_ofmap_chnl,
+  output reg en_mac
 );
 
 /* local parameters */
@@ -50,7 +51,7 @@ localparam  PARAM_BASE = 18'd0,
             IFMAP_BASE = 18'd65536,
             OFMAP_BASE = 18'd131072;
 
-localparam  IDX_PARAM_LAST = 2'd3,    // by NUM_PARAM = 4
+localparam  IDX_PARAM_LAST = 4'd9,    // by NUM_PARAM = 10
             IDX_DELTA_X_LAST = 3'd4,  // by KNL_WIDTH = 5
             IDX_DELTA_Y_LAST = 3'd4,  // by KNL_HEIGHT = 5
             IDX_KNL_WTS_LAST = 5'd24; // by KNL_SIZE = 25
@@ -82,14 +83,16 @@ reg ofmap_chnl_last_ff;
 reg [ADDR_WIDTH - 1:0] addr_in_ff;
 
 /* wires and registers for parameters */
-reg [1:0] cnt_param, cnt_param_nx;
+reg [3:0] cnt_param, cnt_param_nx;
 reg [5:0] param_data [0:3];
-reg [5:0] param_data_nx [0:3];
 
 wire [4:0] ifmap_depth; // with num_knls
 wire [5:0] ifmap_height, ifmap_width; // 6-bits (Max:6'd32)
 wire param_last;
 reg param_last_ff;
+
+/* connection table */
+reg [DATA_WIDTH - 1:0] conn_tbl[0:5];
 
 /* wires and registers for kernels */
 reg [3:0] cnt_knl_id, cnt_knl_id_nx;      // kernel id
@@ -108,6 +111,7 @@ reg [3:0] cnt_ofmap_chnl_nx;  // output channel
 
 /* enable for some states */
 reg en_ld_ifmap_nx;
+reg en_mac_buf [0:1];
 
 /* pipeline delay signals*/
 reg [3:0] en_conv;
@@ -205,7 +209,7 @@ end
 
 always@(*) begin // input memory address translator
   case ({state[IDX_LD_PARAM], state[IDX_LD_KNLS], state[IDX_LD_IFMAP_FULL], state[IDX_LD_IFMAP_PART], state[IDX_CONV]}) // synopsys parallel_case
-    5'b10000 : addr_in = PARAM_BASE + {16'd0, cnt_param};
+    5'b10000 : addr_in = PARAM_BASE + {14'd0, cnt_param};
     5'b01000 : addr_in = WTS_BASE + {5'd0,
                         cnt_knl_id, cnt_knl_chnl, cnt_knl_wts};
     5'b00100 : addr_in = IFMAP_BASE + {4'd0, cnt_ifmap_chnl, 
@@ -243,39 +247,50 @@ end
 /* output logic: done signal */
 assign done = state[IDX_DONE];
 
+/* enable signal for connection table */
+always@(posedge clk) begin
+  if (~srstn) begin
+    en_mac_buf[0] <= 0;
+    en_mac_buf[1] <= 0;
+    en_mac <= 0;
+  end
+  else begin
+    en_mac_buf[0] <= conn_tbl[cnt_ifmap_chnl][cnt_ofmap_chnl];
+    en_mac_buf[1] <= en_mac_buf[0];
+    en_mac <= en_mac_buf[0];
+  end
+end
+
 /* parameter register file and wires */
 assign num_knls     = param_data[IDX_KNLS][4:0]; 
 assign ifmap_depth  = param_data[IDX_DEPTH][4:0];
 assign ifmap_height = param_data[IDX_HEIGHT];
 assign ifmap_width  = param_data[IDX_WIDTH];
 
-always @(*) begin
-  if (state[IDX_LD_PARAM]) begin
-    param_data_nx[IDX_KNLS]   = param_in;
-    param_data_nx[IDX_DEPTH]  = param_data[IDX_KNLS];
-    param_data_nx[IDX_HEIGHT] = param_data[IDX_DEPTH];
-    param_data_nx[IDX_WIDTH]  = param_data[IDX_HEIGHT];
-  end
-  else begin
-    param_data_nx[IDX_KNLS]   = param_data[IDX_KNLS];
-    param_data_nx[IDX_DEPTH]  = param_data[IDX_DEPTH];
-    param_data_nx[IDX_HEIGHT] = param_data[IDX_HEIGHT];
-    param_data_nx[IDX_WIDTH]  = param_data[IDX_WIDTH];
-  end
-end
-
 always @(posedge clk) begin
   if (~srstn) begin
+    conn_tbl[5] <= 0;
+    conn_tbl[4] <= 0;
+    conn_tbl[3] <= 0;
+    conn_tbl[2] <= 0;
+    conn_tbl[1] <= 0;
+    conn_tbl[0] <= 0;
     param_data[IDX_KNLS]   <= 0;
     param_data[IDX_DEPTH]  <= 0;
     param_data[IDX_HEIGHT] <= 0;
     param_data[IDX_WIDTH]  <= 0;
   end
-  else begin
-    param_data[IDX_KNLS]   <= param_data_nx[IDX_KNLS];
-    param_data[IDX_DEPTH]  <= param_data_nx[IDX_DEPTH];
-    param_data[IDX_HEIGHT] <= param_data_nx[IDX_HEIGHT];
-    param_data[IDX_WIDTH]  <= param_data_nx[IDX_WIDTH];
+  else if (state[IDX_LD_PARAM]) begin
+    conn_tbl[5] <= data_in;
+    conn_tbl[4] <= conn_tbl[5];
+    conn_tbl[3] <= conn_tbl[4];
+    conn_tbl[2] <= conn_tbl[3];
+    conn_tbl[1] <= conn_tbl[2];
+    conn_tbl[0] <= conn_tbl[1];
+    param_data[IDX_KNLS]   <= conn_tbl[0][5:0];
+    param_data[IDX_DEPTH]  <= param_data[IDX_KNLS];
+    param_data[IDX_HEIGHT] <= param_data[IDX_DEPTH];
+    param_data[IDX_WIDTH]  <= param_data[IDX_HEIGHT];
   end
 end
 
@@ -306,8 +321,8 @@ always @(posedge clk) begin
 end
 
 always @(*) begin // counter to record how many parameters have been read
-  if (state[IDX_LD_PARAM]) cnt_param_nx = cnt_param + 2'd1;
-  else cnt_param_nx = 2'd0;
+  if (state[IDX_LD_PARAM]) cnt_param_nx = cnt_param + 4'd1;
+  else cnt_param_nx = 4'd0;
 end
 
 always @(*) begin // counter to record how many weights we have loaded in one channel of one kernel

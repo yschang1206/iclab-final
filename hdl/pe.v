@@ -1,5 +1,5 @@
 /**
- * conv.v
+ * pe.v
  */
 
 module pe
@@ -23,7 +23,8 @@ module pe
   input en_ld_ifmap,
   input disable_acc,
   input [4:0] num_knls,
-  input [3:0] cnt_ofmap_chnl
+  input [3:0] cnt_ofmap_chnl,
+  input en_mac
 );
 
 /* local parameters */
@@ -43,6 +44,7 @@ reg signed [DATA_WIDTH - 1:0] mac;
 
 reg signed [DATA_WIDTH - 1:0] prod [0:KNL_SIZE - 1];
 reg signed [DATA_WIDTH - 1:0] prod_roff[0:KNL_SIZE - 1];
+wire signed [DATA_WIDTH - 1:0] prods;
 
 wire [4:0] addr_knl_prod_tmp;
 wire [3:0] addr_knl_prod_nx;
@@ -111,11 +113,14 @@ always@(*) begin
   end
 end
 
-assign mac_nx = prod_roff[0] + prod_roff[1] + prod_roff[2] + prod_roff[3] + prod_roff[4] +
+assign prods = prod_roff[0] + prod_roff[1] + prod_roff[2] + prod_roff[3] + prod_roff[4] +
                 prod_roff[5] + prod_roff[6] + prod_roff[7] + prod_roff[8] + prod_roff[9] + 
                 prod_roff[10] + prod_roff[11] + prod_roff[12] + prod_roff[13] + prod_roff[14] +
                 prod_roff[15] + prod_roff[16] + prod_roff[17] + prod_roff[18] + prod_roff[19] +
                 prod_roff[20] + prod_roff[21] + prod_roff[22] + prod_roff[23] + prod_roff[24];
+
+/* connection table */
+assign mac_nx = (en_mac) ? prods : 0;
 
 
 /* weight register file */

@@ -35,6 +35,7 @@ wire [4:0] num_knls;
 wire [3:0] cnt_ofmap_chnl;
 wire [5:0] param_in;
 assign param_in = data_in[5:0];
+wire en_mac;
 
 conv_ctrl conv_ctrl
 (
@@ -42,7 +43,8 @@ conv_ctrl conv_ctrl
   .clk(clk),
   .srstn(srstn),
   .enable(enable),
-  .param_in(param_in),
+  //.param_in(param_in),
+  .data_in(data_in),
   .addr_in(addr_in),
   .addr_out(addr_out),
   .dram_en_wr(dram_en_wr),
@@ -54,7 +56,8 @@ conv_ctrl conv_ctrl
   .en_ld_ifmap(en_ld_ifmap),
   .disable_acc(disable_acc),
   .num_knls(num_knls),
-  .cnt_ofmap_chnl(cnt_ofmap_chnl)
+  .cnt_ofmap_chnl(cnt_ofmap_chnl),
+  .en_mac(en_mac)
 );
 
 pe pe
@@ -69,7 +72,8 @@ pe pe
   .en_ld_ifmap(en_ld_ifmap),
   .disable_acc(disable_acc),
   .num_knls(num_knls),
-  .cnt_ofmap_chnl(cnt_ofmap_chnl)
+  .cnt_ofmap_chnl(cnt_ofmap_chnl),
+  .en_mac(en_mac)
 );
 
 endmodule

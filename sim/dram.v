@@ -147,18 +147,26 @@ endtask
 task check_result;
 reg [DATA_WIDTH-1:0] golden [0:9];
 reg [DATA_WIDTH-1:0] ans;
-integer i;
+reg [DATA_WIDTH-1:0] max;
+integer i, i_max;
 begin
   $readmemh("../data/out5.dat.unpad", golden);
+  max = golden[0];
+  i_max = 0;
   for (i = 0; i < 10; i = i + 1) begin
-    ans = data[131072 + i]; 
+    ans = data[131072 + i];
+    if (ans > max) begin
+      max = ans;
+      i_max = i;
+    end
     if (ans === golden[i])
       $display("%d: %x === %x", i, ans, golden[i]);
     else begin
       $display("%d: %x !== %x", i, ans, golden[i]);
-      $finish;
+      //$finish;
     end 
-  end 
+  end
+  $display("The digit is: %d", i_max);
 end
 endtask
 
