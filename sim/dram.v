@@ -100,6 +100,15 @@ begin
 end
 endtask
 
+task load_l4_l5_data;
+begin
+  $readmemh("../data/l4.wt", data);
+  $readmemh("../data/l4.bs", data);
+  $readmemh("../data/l5.wt", data);
+  $readmemh("../data/l5.bs", data);
+end
+endtask
+
 task print_result;
 input [ADDR_WIDTH - 1:0] base;
 input [4:0] width;
@@ -130,6 +139,24 @@ begin
         end
         n = n + 1;
       end
+end
+endtask
+
+task check_result;
+reg [DATA_WIDTH-1:0] golden [0:9];
+reg [DATA_WIDTH-1:0] ans;
+integer i;
+begin
+  $readmemh("../data/out5.dat.unpad", golden);
+  for (i = 0; i < 10; i = i + 1) begin
+    ans = data[131072 + i]; 
+    if (ans === golden[i])
+      $display("%d: %x === %x", i, ans, golden[i]);
+    else begin
+      $display("%d: %x !== %x", i, ans, golden[i]);
+      $finish;
+    end 
+  end 
 end
 endtask
 

@@ -29,8 +29,13 @@ localparam  ST_IDLE = 3'd0,
             ST_CONV = 3'd1,
             ST_RELU = 3'd2,
             ST_POOL = 3'd3,
+            ST_FC   = 3'd4,
             ST_DONE = 3'd7;
 
+/**
+ * rdy_data is driven by the top testbench module indicating whether
+ * data in dram is ready or not.
+ */
 reg rdy_data_ff;
 
 /* conv wires */
@@ -99,6 +104,28 @@ max_pool max_pool(
   .done(done_pool)
 );
 
+/* fully connected wires */
+wire en_fc;
+wire dram_valid_fc;
+wire [DATA_WIDTH - 1:0] data_out_fc;
+wire [ADDR_WIDTH - 1:0] addr_in_fc, addr_out_fc;
+wire dram_en_wr_fc, dram_en_rd_fc;
+wire done_fc;
+
+full_conn full_conn(
+  .clk(clk),
+  .srstn(srstn),
+  .enable(en_fc),
+  .dram_valid(dram_valid),
+  .data_in(data_in),
+  .data_out(data_out_fc),
+  .addr_in(addr_in_fc),
+  .addr_out(addr_out_fc),
+  .dram_en_wr(dram_en_wr_fc),
+  .dram_en_rd(dram_en_rd_fc),
+  .done(done_fc)
+);
+
 /* global regs */
 reg [2:0] state, state_nx;
 wire [2:0] stage_tbl[0:15];
@@ -114,7 +141,8 @@ assign stage_tbl[3] = ST_CONV;
 assign stage_tbl[4] = ST_RELU;
 //assign stage_tbl[5] = ST_DONE;
 assign stage_tbl[5] = ST_POOL;
-assign stage_tbl[6] = ST_DONE;
+assign stage_tbl[6] = ST_FC;
+assign stage_tbl[7] = ST_DONE;
 
 /* finite state machine */
 always@(posedge clk) begin
@@ -144,6 +172,7 @@ end
 assign en_conv = (state == ST_CONV & rdy_data_ff);
 assign en_relu = (state == ST_RELU & rdy_data_ff);
 assign en_pool = (state == ST_POOL & rdy_data_ff);
+assign en_fc   = (state == ST_FC   & rdy_data_ff);
 
 /* output logic: done signal */
 assign done = (state == ST_DONE);
@@ -172,6 +201,13 @@ always@(*) begin
       dram_en_wr = dram_en_wr_pool;
       dram_en_rd = dram_en_rd_pool;
     end
+    ST_FC: begin
+      data_out = data_out_fc;
+      addr_in = addr_in_fc;
+      addr_out = addr_out_fc;
+      dram_en_wr = dram_en_wr_fc;
+      dram_en_rd = dram_en_rd_fc;
+    end
     default: begin
       data_out = 0;
       addr_in = 0;
@@ -186,7 +222,7 @@ always@(posedge clk) begin
   if (~srstn)
     done_one_layer <= 0;
   else
-    done_one_layer <= (done_conv | done_relu | done_pool);
+    done_one_layer <= (done_conv | done_relu | done_pool | done_fc);
 end
 
 /* counter to record the currently stage */
@@ -198,7 +234,7 @@ always@(posedge clk) begin
 end
 
 always@(*) begin
-  if (done_conv | done_relu | done_pool)
+  if (done_conv | done_relu | done_pool | done_fc)
     cnt_stage_nx = cnt_stage + 1;
   else
     cnt_stage_nx = cnt_stage;

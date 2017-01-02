@@ -5,5 +5,7 @@ dram.v
 ../hdl/pe.v
 ../hdl/relu.v
 ../hdl/max_pool.v
+../hdl/full_conn.v
 ../hdl/lenet.v
 +access+r
++define+DUMP

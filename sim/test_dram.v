@@ -113,6 +113,14 @@ initial begin
   @(negedge clk);
   rdy_data = 0;
   @(negedge clk);
+  wait(done_one_layer == 1);
+
+  dram_0.load_l4_l5_data;
+  @(negedge clk);
+  rdy_data = 1;
+  @(negedge clk);
+  rdy_data = 0;
+  @(negedge clk);
 end
 
 /* result checker */
@@ -123,7 +131,8 @@ initial begin
   //dram_0.print_result(131072, 28, 28, 6);
   //dram_0.print_result(65536, 14, 14, 6);
   //dram_0.print_result(131072, 10, 10, 16);
-  dram_0.print_result(65536, 5, 5, 16);
+  //dram_0.print_result(65536, 5, 5, 16);
+  dram_0.check_result;
   #(CYCLE);
   $finish;
 end
@@ -151,9 +160,12 @@ initial begin
     $fsdbDumpfile("test_dram_gatesim.fsdb");
     $fsdbDumpvars();
     $sdf_annotate("../syn/netlist/lenet_syn.sdf",lenet);
-  `else
+  `elsif DUMP
     $fsdbDumpfile("test_dram.fsdb");
     $fsdbDumpvars();
+  `elsif DUMPMDA
+    $fsdbDumpfile("test_dram.fsdb");
+    $fsdbDumpvars(0, test_dram, "+mda");
   `endif
 end
 
