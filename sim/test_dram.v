@@ -1,11 +1,11 @@
 /**
  * test_dram.v
  */
-`timescale  1ns/100ps
+`timescale  1ns/1ns
 module test_dram;
 
-parameter CYCLE = 16;
-parameter END_CYCLE = 4000000;
+parameter CYCLE = 12;
+parameter END_CYCLE = 100000;
 parameter DATA_WIDTH = 32;
 parameter ADDR_WIDTH = 18;
 
@@ -59,6 +59,7 @@ initial begin
   rdy_data = 0;
   @(negedge clk);
   srstn = 0;
+  #(CYCLE*2);
   @(negedge clk);
   srstn = 1;
   @(negedge clk);
@@ -148,8 +149,8 @@ end
 /* fsdb */
 initial begin
   `ifdef GATESIM
-    $fsdbDumpfile("test_dram_gatesim.fsdb");
-    $fsdbDumpvars();
+  //  $fsdbDumpfile("test_dram_gatesim.fsdb");
+  //  $fsdbDumpvars();
     $sdf_annotate("../syn/netlist/lenet_syn.sdf",lenet);
   `else
     $fsdbDumpfile("test_dram.fsdb");
