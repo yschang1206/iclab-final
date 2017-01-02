@@ -5,7 +5,7 @@ module conv_ctrl
   parameter ADDR_WIDTH = 18,
   parameter KNL_WIDTH = 5'd5,
   parameter KNL_HEIGHT = 5'd5,
-  parameter KNL_SIZE = KNL_WIDTH * KNL_HEIGHT,  // unit: 32 bits
+  parameter KNL_SIZE = 5'd25,  // unit: 32 bits
   parameter KNL_MAXNUM = 16
 )
 (
@@ -50,15 +50,19 @@ localparam  PARAM_BASE = 18'd0,
             IFMAP_BASE = 18'd65536,
             OFMAP_BASE = 18'd131072;
 
-localparam  NUM_PARAM = 6'd4; // TODO: add table
+localparam  IDX_PARAM_LAST = 2'd3,    // by NUM_PARAM = 4
+            IDX_DELTA_X_LAST = 3'd4,  // by KNL_WIDTH = 5
+            IDX_DELTA_Y_LAST = 3'd4,  // by KNL_HEIGHT = 5
+            IDX_KNL_WTS_LAST = 5'd24; // by KNL_SIZE = 25
 
 localparam  IDX_KNLS   = 0, 
             IDX_DEPTH  = 1,
             IDX_HEIGHT = 2, 
             IDX_WIDTH  = 3;
+
 /* global wires, registers and integers */
 integer i, j;
-reg [6:0] state, state_nx;
+reg [6:0] state, state_nx;  // 7-stages
 wire knl_wts_last, knl_id_last;
 wire ifmap_delta_x_last, ifmap_delta_y_last;
 wire ifmap_base_x_last, ifmap_base_y_last;
@@ -66,35 +70,40 @@ wire ifmap_chnl_last;
 wire ifmap_chnl_first;
 wire ofmap_chnl_last;
 wire [4:0] idx_knls_last;
+wire [4:0] idx_depth_last;
+wire [5:0] idx_height_last;
+wire [5:0] idx_width_last;
 
 reg ifmap_chnl_last_ff;
 reg ifmap_base_x_last_ff, ifmap_base_y_last_ff;
+reg ofmap_chnl_last_ff;
+
 // delay one cycle to read and write psum of output feature map
 reg [ADDR_WIDTH - 1:0] addr_in_ff;
 
 /* wires and registers for parameters */
-reg [5:0] cnt_param, cnt_param_nx;
+reg [1:0] cnt_param, cnt_param_nx;
 reg [5:0] param_data [0:3];
 reg [5:0] param_data_nx [0:3];
 
-wire [5:0] ifmap_depth, ifmap_height, ifmap_width; // with num_knls
+wire [4:0] ifmap_depth; // with num_knls
+wire [5:0] ifmap_height, ifmap_width; // 6-bits (Max:6'd32)
 wire param_last;
 reg param_last_ff;
 
 /* wires and registers for kernels */
-reg [4:0] cnt_knl_id, cnt_knl_id_nx;      // kernel id
-reg [4:0] cnt_knl_chnl, cnt_knl_chnl_nx;  // kernel channel
+reg [3:0] cnt_knl_id, cnt_knl_id_nx;      // kernel id
+reg [3:0] cnt_knl_chnl, cnt_knl_chnl_nx;  // kernel channel
 reg [4:0] cnt_knl_wts, cnt_knl_wts_nx;    // kernel weights
 
 /* wires and registers for input feature map */
-wire [4:0] cnt_ifmap_chnl;  // equals to cnt_knl_chnl
-reg [5:0] cnt_ifmap_base_x, cnt_ifmap_base_x_nx;
-reg [5:0] cnt_ifmap_base_y, cnt_ifmap_base_y_nx;
+wire [3:0] cnt_ifmap_chnl;  // equals to cnt_knl_chnl
+reg [4:0] cnt_ifmap_base_x, cnt_ifmap_base_x_nx; // 5-bits (Max:5'd31)
+reg [4:0] cnt_ifmap_base_y, cnt_ifmap_base_y_nx; // 5-bits (Max:5'd31)
 reg [2:0] cnt_ifmap_delta_x, cnt_ifmap_delta_x_nx;
 reg [2:0] cnt_ifmap_delta_y, cnt_ifmap_delta_y_nx;
 
 /* wires and registers for output feature map */
-//reg [4:0] cnt_ofmap_chnl, cnt_ofmap_chnl_nx;  // output channel
 reg [3:0] cnt_ofmap_chnl_nx;  // output channel
 
 /* enable for some states */
@@ -102,23 +111,27 @@ reg en_ld_ifmap_nx;
 
 /* pipeline delay signals*/
 reg [3:0] en_conv;
-reg ofmap_chnl_last_ff;
 reg [3:0] cnt_ofmap_chnl_ff [0:1];
+
 /* forwarded wires */
 assign cnt_ifmap_chnl = cnt_knl_chnl;
 
 /* event flags */
-assign idx_knls_last = num_knls - 5'd1;
-assign knl_wts_last = (cnt_knl_wts == KNL_SIZE-1);
+assign idx_knls_last   = num_knls - 5'd1;
+assign idx_depth_last  = ifmap_depth - 5'd1;
+assign idx_width_last  = ifmap_width - 6'd5;
+assign idx_height_last = ifmap_height - 6'd5;
+
+assign knl_wts_last = (cnt_knl_wts == IDX_KNL_WTS_LAST);
 assign knl_id_last  = (cnt_knl_id == idx_knls_last[3:0]);
-assign ifmap_delta_x_last = (cnt_ifmap_delta_x == KNL_WIDTH-1);
-assign ifmap_delta_y_last = (cnt_ifmap_delta_y == KNL_HEIGHT-1);
-assign ifmap_base_x_last  = (cnt_ifmap_base_x == ifmap_width - KNL_WIDTH);
-assign ifmap_base_y_last  = (cnt_ifmap_base_y == ifmap_height - KNL_HEIGHT);
-assign ifmap_chnl_last    = (cnt_ifmap_chnl == ifmap_depth - 1);
-assign ifmap_chnl_first   = (cnt_ifmap_chnl == 0);
+assign ifmap_delta_x_last = (cnt_ifmap_delta_x == IDX_DELTA_X_LAST);
+assign ifmap_delta_y_last = (cnt_ifmap_delta_y == IDX_DELTA_Y_LAST);
+assign ifmap_base_x_last  = (cnt_ifmap_base_x == idx_width_last[4:0]);
+assign ifmap_base_y_last  = (cnt_ifmap_base_y == idx_height_last[4:0]);
+assign ifmap_chnl_last    = (cnt_ifmap_chnl == idx_depth_last[3:0]);
+assign ifmap_chnl_first   = (cnt_ifmap_chnl == 4'd0);
 assign ofmap_chnl_last    = (cnt_ofmap_chnl_ff[1] == idx_knls_last[3:0]);
-assign param_last = (cnt_param == NUM_PARAM-1);
+assign param_last = (cnt_param == IDX_PARAM_LAST);
 
 /* delayed registers */
 always@(posedge clk) begin
@@ -192,17 +205,17 @@ end
 
 always@(*) begin // input memory address translator
   case ({state[IDX_LD_PARAM], state[IDX_LD_KNLS], state[IDX_LD_IFMAP_FULL], state[IDX_LD_IFMAP_PART], state[IDX_CONV]}) // synopsys parallel_case
-    5'b10000 : addr_in = PARAM_BASE + {12'd0, cnt_param};
+    5'b10000 : addr_in = PARAM_BASE + {16'd0, cnt_param};
     5'b01000 : addr_in = WTS_BASE + {5'd0,
-                        cnt_knl_id[3:0], cnt_knl_chnl[3:0], cnt_knl_wts[4:0]};
-    5'b00100 : addr_in = IFMAP_BASE + {4'd0, cnt_ifmap_chnl[3:0], 
-                        cnt_ifmap_base_y[4:0] + {2'd0, cnt_ifmap_delta_y[2:0]},
-                        cnt_ifmap_base_x[4:0] + {2'd0, cnt_ifmap_delta_x[2:0]}}; 
-    5'b00010 : addr_in = IFMAP_BASE + {4'd0, cnt_ifmap_chnl[3:0], 
-                        cnt_ifmap_base_y[4:0] + {2'd0, cnt_ifmap_delta_y[2:0]},
-                        cnt_ifmap_base_x[4:0] + {2'd0, cnt_ifmap_delta_x[2:0]} + KNL_WIDTH - 5'd1};
+                        cnt_knl_id, cnt_knl_chnl, cnt_knl_wts};
+    5'b00100 : addr_in = IFMAP_BASE + {4'd0, cnt_ifmap_chnl, 
+                        cnt_ifmap_base_y + {2'd0, cnt_ifmap_delta_y},
+                        cnt_ifmap_base_x + {2'd0, cnt_ifmap_delta_x}}; 
+    5'b00010 : addr_in = IFMAP_BASE + {4'd0, cnt_ifmap_chnl, 
+                        cnt_ifmap_base_y + {2'd0, cnt_ifmap_delta_y},
+                        cnt_ifmap_base_x + {2'd0, cnt_ifmap_delta_x} + 5'd4};
     5'b00001 : addr_in = OFMAP_BASE + {4'd0,
-                        cnt_ofmap_chnl_ff[1], cnt_ifmap_base_y[4:0], cnt_ifmap_base_x[4:0]};
+                        cnt_ofmap_chnl_ff[1], cnt_ifmap_base_y, cnt_ifmap_base_x};
     default: addr_in = 0;
   endcase
 end
@@ -232,7 +245,7 @@ assign done = state[IDX_DONE];
 
 /* parameter register file and wires */
 assign num_knls     = param_data[IDX_KNLS][4:0]; 
-assign ifmap_depth  = param_data[IDX_DEPTH];
+assign ifmap_depth  = param_data[IDX_DEPTH][4:0];
 assign ifmap_height = param_data[IDX_HEIGHT];
 assign ifmap_width  = param_data[IDX_WIDTH];
 
@@ -292,20 +305,17 @@ always @(posedge clk) begin
   end
 end
 
-/* counter to record how many parameters have been read */
-always @(*) begin
-  if (state[IDX_LD_PARAM]) cnt_param_nx = cnt_param + 1;
-  else cnt_param_nx = 0;
+always @(*) begin // counter to record how many parameters have been read
+  if (state[IDX_LD_PARAM]) cnt_param_nx = cnt_param + 2'd1;
+  else cnt_param_nx = 2'd0;
 end
 
-/* counter to record how many weights we have loaded in one channel of one kernel */
-always @(*) begin
+always @(*) begin // counter to record how many weights we have loaded in one channel of one kernel
   if (state[IDX_LD_KNLS] & !knl_wts_last) cnt_knl_wts_nx = cnt_knl_wts + 5'd1;
   else cnt_knl_wts_nx = 5'd0;
 end
 
-/* counter to record which channel we are currently processing */
-always @(*) begin
+always @(*) begin // counter to record which channel we are currently processing
   case ({state[IDX_IDLE], ifmap_base_x_last_ff, ifmap_base_y_last_ff, ofmap_chnl_last_ff}) // synopsys parallel_case
     4'b0000 : cnt_knl_chnl_nx = cnt_knl_chnl;
     4'b0001 : cnt_knl_chnl_nx = cnt_knl_chnl;
@@ -314,65 +324,59 @@ always @(*) begin
     4'b0100 : cnt_knl_chnl_nx = cnt_knl_chnl;
     4'b0101 : cnt_knl_chnl_nx = cnt_knl_chnl;
     4'b0110 : cnt_knl_chnl_nx = cnt_knl_chnl;
-    4'b0111 : cnt_knl_chnl_nx = cnt_knl_chnl + 5'd1;
-    default : cnt_knl_chnl_nx = 0;
+    4'b0111 : cnt_knl_chnl_nx = cnt_knl_chnl + 4'd1;
+    default : cnt_knl_chnl_nx = 4'd0;
   endcase
 end
 
-/* counter to record which kernel we are currently processing */
-always @(*) begin
+always @(*) begin // counter to record which kernel we are currently processing
   case ({state[IDX_LD_KNLS], knl_wts_last, knl_id_last}) // synopsys parallel_case
     3'b100  : cnt_knl_id_nx = cnt_knl_id;
     3'b101  : cnt_knl_id_nx = cnt_knl_id;
-    3'b110  : cnt_knl_id_nx = cnt_knl_id + 5'd1;
-    default : cnt_knl_id_nx = 0;
+    3'b110  : cnt_knl_id_nx = cnt_knl_id + 4'd1;
+    default : cnt_knl_id_nx = 4'd0;
   endcase
 end
 
-/* counter to record delta x */
-always@(*) begin
+always@(*) begin // counter to record delta x
   case ({state[IDX_LD_IFMAP_FULL], ifmap_delta_y_last}) // synopsys parallel_case
     2'b10   : cnt_ifmap_delta_x_nx = cnt_ifmap_delta_x;
     2'b11   : cnt_ifmap_delta_x_nx = cnt_ifmap_delta_x + 3'd1;
-    default : cnt_ifmap_delta_x_nx = 0;
+    default : cnt_ifmap_delta_x_nx = 3'd0;
   endcase
 end
 
-/* counter to record delta y */
-always @(*) begin
+always @(*) begin // counter to record delta y
   case ({state[IDX_LD_IFMAP_FULL], state[IDX_LD_IFMAP_PART], ifmap_delta_y_last}) // synopsys parallel_case
     3'b010  : cnt_ifmap_delta_y_nx = cnt_ifmap_delta_y + 3'd1;
     3'b100  : cnt_ifmap_delta_y_nx = cnt_ifmap_delta_y + 3'd1;
     3'b110  : cnt_ifmap_delta_y_nx = cnt_ifmap_delta_y + 3'd1;
-    default : cnt_ifmap_delta_y_nx = 0;
+    default : cnt_ifmap_delta_y_nx = 3'd0;
   endcase
 end
 
-/* counter to record base x */
-always @(*) begin
+always @(*) begin // counter to record base x
   case ({state[IDX_LD_KNLS], ifmap_base_x_last, ofmap_chnl_last}) // synopsys parallel_case
     3'b000  : cnt_ifmap_base_x_nx = cnt_ifmap_base_x;
-    3'b001  : cnt_ifmap_base_x_nx = cnt_ifmap_base_x + 6'd1;
+    3'b001  : cnt_ifmap_base_x_nx = cnt_ifmap_base_x + 5'd1;
     3'b010  : cnt_ifmap_base_x_nx = cnt_ifmap_base_x;
-    default : cnt_ifmap_base_x_nx = 0;
+    default : cnt_ifmap_base_x_nx = 5'd0;
   endcase
 end
 
-/* counter to record base y */
-always @(*) begin
+always @(*) begin // counter to record base y
   case ({state[IDX_LD_KNLS], ifmap_base_x_last, ofmap_chnl_last}) // synopsys parallel_case
     3'b000  : cnt_ifmap_base_y_nx = cnt_ifmap_base_y;
     3'b001  : cnt_ifmap_base_y_nx = cnt_ifmap_base_y;
     3'b010  : cnt_ifmap_base_y_nx = cnt_ifmap_base_y;
-    3'b011  : cnt_ifmap_base_y_nx = cnt_ifmap_base_y + 6'd1;
-    default : cnt_ifmap_base_y_nx = 0;
+    3'b011  : cnt_ifmap_base_y_nx = cnt_ifmap_base_y + 5'd1;
+    default : cnt_ifmap_base_y_nx = 5'd0;
   endcase
 end
 
-/* counter to record how many MACs we've done */
-always @(*) begin
-  if (en_conv[0] & !ofmap_chnl_last) cnt_ofmap_chnl_nx = cnt_ofmap_chnl + 1;
-  else cnt_ofmap_chnl_nx = 0;
+always @(*) begin // counter to record how many MACs we've done
+  if (en_conv[0] & !ofmap_chnl_last) cnt_ofmap_chnl_nx = cnt_ofmap_chnl + 4'd1;
+  else cnt_ofmap_chnl_nx = 4'd0;
 end
 
 endmodule

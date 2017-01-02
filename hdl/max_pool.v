@@ -182,13 +182,13 @@ end
 /* input feature map register file */
 always @(posedge clk) begin
   if (~srstn) begin
-    for (i = 0; i < 4; i = i + 1)
+    for (i = 0; i < 4; i = i+1)
       ifmap[i] <= 0;
   end
   else if (state[IDX_POOL]) begin
     ifmap[3] <= data_in;
-    for (i = 0; i < 3; i = i + 1)
-      ifmap[i] <= ifmap[i + 1];
+    for (i = 0; i < 3; i = i+1)
+      ifmap[i] <= ifmap[i+1];
   end
 end
 
@@ -252,7 +252,7 @@ always @(posedge clk) begin
 end
 
 always@(*) begin
-  if (state == ST_POOL)
+  if (state[IDX_POOL])
     if (ifmap_delta_x_last & ifmap_delta_y_last)
       if (ifmap_base_x_last)
         cnt_ifmap_base_x_nx = 0;
@@ -273,7 +273,7 @@ always@(posedge clk) begin
 end
 
 always@(*) begin
-  if (state == ST_POOL)
+  if (state[IDX_POOL])
     if (ifmap_delta_x_last & ifmap_delta_y_last & ifmap_base_x_last)
       if (ifmap_base_y_last)
         cnt_ifmap_base_y_nx = 0;
@@ -294,7 +294,7 @@ always@(posedge clk) begin
 end
 
 always@(*) begin
-  if (state == ST_POOL)
+  if (state[IDX_POOL])
     if (ifmap_delta_x_last & ifmap_delta_y_last & ifmap_base_x_last & ifmap_base_y_last)
       cnt_ifmap_z_nx = cnt_ifmap_z + 1;
     else
