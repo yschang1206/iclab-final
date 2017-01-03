@@ -17,8 +17,9 @@ write_sdc ./$NET_DIR/${TOPLEVEL}_syn.sdc
 write_saif -output ./$NET_DIR/${TOPLEVEL}_syn.saif 
 
 ####---------------------------Syntheis result reports----------------------------
-report_timing -path full -delay max -max_paths 4 -nworst 4 -significant_digits 4 > ./$RPT_DIR/report_time_${TOPLEVEL}.out
-report_timing -delay max -max_paths 4 > ./$RPT_DIR/report_setup_${TOPLEVEL}.out
-report_constraint -all_violators > ./$RPT_DIR/report_violation_${TOPLEVEL}.out
-report_area -hier  > ./$RPT_DIR/report_area_${TOPLEVEL}.out
-report_power -hier > ./$RPT_DIR/report_power_${TOPLEVEL}.out
+report_timing -path full -delay max -max_paths 4 -nworst 4 -significant_digits 4 > ./$RPT_DIR/report_time_${TOPLEVEL}.rep
+report_timing -delay min -max_paths 4 > ./$RPT_DIR/report_hold_${TOPLEVEL}.rep
+report_timing -delay max -max_paths 4 > ./$RPT_DIR/report_setup_${TOPLEVEL}.rep
+report_constraint -all_violators > ./$RPT_DIR/report_violation_${TOPLEVEL}.rep
+report_area -hier  > ./$RPT_DIR/report_area_${TOPLEVEL}.rep
+report_power -hier > ./$RPT_DIR/report_power_${TOPLEVEL}.rep

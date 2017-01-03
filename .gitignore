@@ -18,6 +18,10 @@ sim/sim_pre
 sim/sim_nLint
 syn/netlist
 sim/top.rc
+icc/post_layout
+icc/pre_layout/dc
+icc/pre_layout/design_data/CHIP_syn.v
+icc/pre_layout/design_data/CHIP_syn.sdc
 
 nLint*
 *.o
