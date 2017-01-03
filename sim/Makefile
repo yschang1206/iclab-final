@@ -81,10 +81,8 @@ gatesim:
 	mv *.log sim_gate
 
 syn:
-	cd $(SYN_DIR) && dc_shell -f synthesis.tcl | tee da.log
-preicc:
+	cd $(SYN_DIR) && nohup dc_shell -f synthesis.tcl | tee da.log
 
-	
 # clean working directories
 simclean:
 	rm -rf $(SIM_TEMP)
@@ -92,7 +90,20 @@ simclean:
 synclean:
 	cd $(SYN_DIR) && $(RM) $(SYN_TEMP)
 
-
+%.preicc:
+	cp -i ../syn/netlist/$(basename $@)_syn.sdc ../icc/pre_layout/dc
+	cp -i ../syn/netlist/$(basename $@)_syn.v ../icc/pre_layout/dc
+	cp -i ../icc/pre_layout/dc/$(basename $@)_syn.sdc \
+	../icc/pre_layout/design_data/CHIP_syn.sdc 
+	cat ../icc/pre_layout/dc/$(basename $@)_syn.v \
+	../icc/pre_layout/design_data/CHIP_syn_app.v \
+	> ../icc/pre_layout/design_data/CHIP_syn.v
+# Now modify CHIP_syn.sdc "set_operating_conditions" and "create_clock"
+# set_operating_conditions -max ss0p95v125c -min ff1p16vn40c
+# #set_wire_load_mode enclosed
+# #set_max_fanout 0.82 [current_design]
+# #set_max_area 0
+# #set_wire_load_selection_group predcaps
 
 ###########################################
 %.verdi :
