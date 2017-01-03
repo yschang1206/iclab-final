@@ -1,10 +1,10 @@
 /**
  * test_dram.v
  */
-`timescale  1ns/1ns
+`timescale  1ns/10ps
 module test_dram;
 
-parameter CYCLE = 12;
+parameter CYCLE = 10;
 parameter END_CYCLE = 100000;
 parameter DATA_WIDTH = 32;
 parameter ADDR_WIDTH = 18;
@@ -33,21 +33,39 @@ dram dram_0(
   .data_out(dram_data_rd)
 );
 
-lenet lenet(
-  .clk(clk),
-  .srstn(srstn),
-  .enable(enable),
-  .dram_valid(dram_valid),
-  .rdy_data(rdy_data),
-  .data_in(dram_data_rd),
-  .data_out(dram_data_wr),
-  .addr_in(dram_addr_rd),
-  .addr_out(dram_addr_wr),
-  .dram_en_wr(dram_en_wr),
-  .dram_en_rd(dram_en_rd),
-  .done(done),
-  .done_one_layer(done_one_layer)
-);
+`ifdef POSTSIM
+  CHIP CHIP0(
+    .clk(clk),
+    .srstn(srstn),
+    .enable(enable),
+    .dram_valid(dram_valid),
+    .rdy_data(rdy_data),
+    .data_in(dram_data_rd),
+    .data_out(dram_data_wr),
+    .addr_in(dram_addr_rd),
+    .addr_out(dram_addr_wr),
+    .dram_en_wr(dram_en_wr),
+    .dram_en_rd(dram_en_rd),
+    .done(done),
+    .done_one_layer(done_one_layer)
+  );
+`else
+  lenet lenet(
+    .clk(clk),
+    .srstn(srstn),
+    .enable(enable),
+    .dram_valid(dram_valid),
+    .rdy_data(rdy_data),
+    .data_in(dram_data_rd),
+    .data_out(dram_data_wr),
+    .addr_in(dram_addr_rd),
+    .addr_out(dram_addr_wr),
+    .dram_en_wr(dram_en_wr),
+    .dram_en_rd(dram_en_rd),
+    .done(done),
+    .done_one_layer(done_one_layer)
+  );
+`endif
 
 always #(CYCLE / 2) clk = ~clk;
 
@@ -59,7 +77,6 @@ initial begin
   rdy_data = 0;
   @(negedge clk);
   srstn = 0;
-  #(CYCLE*2);
   @(negedge clk);
   srstn = 1;
   @(negedge clk);
@@ -166,9 +183,13 @@ end
 /* fsdb */
 initial begin
   `ifdef GATESIM
-  //  $fsdbDumpfile("test_dram_gatesim.fsdb");
+  //  $fsdbDumpfile("gatesim.fsdb");
   //  $fsdbDumpvars();
     $sdf_annotate("../syn/netlist/lenet_syn.sdf",lenet);
+  `elsif POSTSIM
+  //  $fsdbDumpfile("postsim.fsdb");
+  //  $fsdbDumpvars();
+    $sdf_annotate("../icc/post_layout/CHIP_layout.sdf",CHIP0);
   `elsif DUMP
     $fsdbDumpfile("test_dram.fsdb");
     $fsdbDumpvars();

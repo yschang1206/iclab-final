@@ -18,6 +18,7 @@ sim/sim_pre
 sim/sim_nLint
 syn/netlist
 sim/top.rc
+icc
 
 nLint*
 *.o

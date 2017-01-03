@@ -82,7 +82,9 @@ gatesim:
 
 syn:
 	cd $(SYN_DIR) && dc_shell -f synthesis.tcl | tee da.log
+preicc:
 
+	
 # clean working directories
 simclean:
 	rm -rf $(SIM_TEMP)
