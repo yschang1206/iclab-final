@@ -52,65 +52,67 @@ end
 
 task load_img;
 begin
-  $readmemh("../data/img.dat", data);
+  $readmemh("../data/img/img.dat", data);
 end
 endtask
 
+/* obsolete */
 task load_out1;
 begin
-  $readmemh("../data/out1.dat", data);
+  $readmemh("../data/img/out1.dat", data);
 end
 endtask
 
 task load_l0_pre_data;
 begin
-  $readmemh("../data/l0_pre.param", data);
-  $readmemh("../data/l0.wt", data);
-  $readmemh("../data/l0.bs", data);
+  $readmemh("../data/kernel/l0_pre.param", data);
+  $readmemh("../data/kernel/l0.wt", data);
+  $readmemh("../data/kernel/l0.bs", data);
 end
 endtask
 
 task load_l0_post_data;
 begin
-  $readmemh("../data/l0_post.param", data);
+  $readmemh("../data/kernel/l0_post.param", data);
 end
 endtask
 
 task load_l1_data;
 begin
-  $readmemh("../data/l1.param", data);
+  $readmemh("../data/kernel/l1.param", data);
 end
 endtask
 
 task load_l2_pre_data;
 begin
-  $readmemh("../data/l2_pre.param", data);
-  $readmemh("../data/l2.wt", data);
-  $readmemh("../data/l2.bs", data);
+  $readmemh("../data/kernel/l2_pre.param", data);
+  $readmemh("../data/kernel/l2.wt", data);
+  $readmemh("../data/kernel/l2.bs", data);
 end
 endtask
 
 task load_l2_post_data;
 begin
-  $readmemh("../data/l2_post.param", data);
+  $readmemh("../data/kernel/l2_post.param", data);
 end
 endtask
 
 task load_l3_data;
 begin
-  $readmemh("../data/l3.param", data);
+  $readmemh("../data/kernel/l3.param", data);
 end
 endtask
 
 task load_l4_l5_data;
 begin
-  $readmemh("../data/l4.wt", data);
-  $readmemh("../data/l4.bs", data);
-  $readmemh("../data/l5.wt", data);
-  $readmemh("../data/l5.bs", data);
+  $readmemh("../data/kernel/l4.wt", data);
+  $readmemh("../data/kernel/l4.bs", data);
+  $readmemh("../data/kernel/l5.wt", data);
+  $readmemh("../data/kernel/l5.bs", data);
 end
 endtask
 
+/* obsolete */
 task print_result;
 input [ADDR_WIDTH - 1:0] base;
 input [4:0] width;
@@ -150,7 +152,7 @@ reg [DATA_WIDTH-1:0] ans;
 reg [DATA_WIDTH-1:0] max;
 integer i, i_max;
 begin
-  $readmemh("../data/out5.dat.unpad", golden);
+  $readmemh("../data/img/golden.dat", golden);
   max = golden[0];
   i_max = 0;
   for (i = 0; i < 10; i = i + 1) begin

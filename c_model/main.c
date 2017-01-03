@@ -27,16 +27,16 @@ void print_knl_data(kernel_t *knls, int num_knl, int layer)
     FILE *fp_wt, *fp_bs;
     char fname_wt[64], fname_bs[64];
 
-    sprintf(fname_wt, "../data/l%d.wt.unpad", layer);
-    sprintf(fname_bs, "../data/l%d.bs.unpad", layer);
+    sprintf(fname_wt, "../data/unpad/l%d.wt.unpad", layer);
+    sprintf(fname_bs, "../data/unpad/l%d.bs.unpad", layer);
     fp_wt = fopen(fname_wt, "w");
     if (fp_wt == NULL) {
-        fprintf(stderr, "fail opening ../data/weights.dat.unpad\n");
+        fprintf(stderr, "fail opening %s\n", fname_wt);
         exit(1);
     }
     fp_bs = fopen(fname_bs, "w");
     if (fp_bs == NULL) {
-        fprintf(stderr, "fail opening ../data/biases.dat.unpad\n");
+        fprintf(stderr, "fail opening %s\n", fname_bs);
         exit(1);
     }
     for (i = 0; i < num_knl; i++) {
@@ -118,14 +118,14 @@ int main(int argc, char *argv[])
     print_knl_data(knls, n, l);
     ifmap = init_fmap(w_fmap, h_fmap, d);
     load_img(ifmap, argv[1], w_fmap, h_fmap);
-    print_fmap_data(ifmap, "../data/img.dat.unpad");
+    print_fmap_data(ifmap, "../data/unpad/img.dat.unpad");
     /* convolution layer */
     ofmap = conv(knls, ifmap, n);
     /* free obsolete objects */
     free_kernels(knls, n);
     free_fmap(ifmap);
     ifmap = ofmap;
-    print_fmap_data(ofmap, "../data/out0.dat.unpad");
+    print_fmap_data(ofmap, "../data/unpad/out0.dat.unpad");
 
     /* layer 1: max pooling */
     /* maxpooling layer */
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
     /* free obsolete objects */
     free_fmap(ifmap);
     ifmap = ofmap;
-    print_fmap_data(ofmap, "../data/out1.dat.unpad");
+    print_fmap_data(ofmap, "../data/unpad/out1.dat.unpad");
 
     /* layer 2: convolution */
     w_knl = 5;
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
     free_kernels(knls, n);
     free_fmap(ifmap);
     ifmap = ofmap;
-    print_fmap_data(ofmap, "../data/out2.dat.unpad");
+    print_fmap_data(ofmap, "../data/unpad/out2.dat.unpad");
 
     /* layer 3: max pooling */
     /* maxpooling layer */
@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
     /* free obsolete objects */
     free_fmap(ifmap);
     ifmap = ofmap;
-    print_fmap_data(ofmap, "../data/out3.dat.unpad");
+    print_fmap_data(ofmap, "../data/unpad/out3.dat.unpad");
 
     /* layer 4: fully-connected */
     w_knl = ifmap->w;
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
     free_kernels(knls, n);
     free_fmap(ifmap);
     ifmap = ofmap;
-    print_fmap_data(ofmap, "../data/out4.dat.unpad");
+    print_fmap_data(ofmap, "../data/unpad/out4.dat.unpad");
 
     /* layer 5: fully-connected */
     w_knl = ifmap->w;
@@ -199,7 +199,8 @@ int main(int argc, char *argv[])
     free_kernels(knls, n);
     free_fmap(ifmap);
     ifmap = ofmap;
-    print_fmap_data(ofmap, "../data/out5.dat.unpad");
+    print_fmap_data(ofmap, "../data/unpad/out5.dat.unpad");
+    print_fmap_data(ofmap, "../data/img/golden.dat");
 
     print_result(ofmap);
 
