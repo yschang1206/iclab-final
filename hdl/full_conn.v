@@ -96,6 +96,8 @@ reg signed [DATA_WIDTH-1:0] mac1, mac1_nx;
 wire signed [DATA_WIDTH-1:0] mac1_bs, mac1_relu;
 reg signed [DATA_WIDTH-1:0] mac2, mac2_nx;
 wire signed [DATA_WIDTH-1:0] mac2_bs, mac2_relu;
+reg signed [DATA_WIDTH-1:0] pixel_ps1;
+reg signed [DATA_WIDTH-1:0] pixel_ps2;
 
 /* event flags */
 assign ifmap_x_last = (cnt_ifmap_x == WIDTH_PS1 - 1);
@@ -149,37 +151,6 @@ end
 /* output memory address translator */
 assign addr_out = OFMAP_BASE + {14'd0, cnt_bs2_ff[1]};
 
-/*
-always@(*) begin
-  case (state)
-    ST_LD_IFMAP: begin
-      dram_en_rd = 1;
-      dram_en_wr = 0;
-    end
-    ST_MAC_PS1: begin
-      dram_en_rd = 1;
-      dram_en_wr = 0;
-    end
-    ST_BIAS_PS1: begin
-      dram_en_rd = 1;
-      dram_en_wr = 0;
-    end
-    ST_MAC_PS2: begin
-      dram_en_rd = 1;
-      dram_en_wr = 0;
-    end
-    ST_BIAS_PS2: begin
-      dram_en_rd = 1;
-      dram_en_wr = valid_bs2;
-    end
-    default: begin
-      dram_en_rd = 0;
-      dram_en_wr = 0;
-    end
-  endcase
-end
-*/
-
 assign dram_en_rd = (state == ST_IDLE) ? 0 : 1;
 assign dram_en_wr = valid_bs2;
 
@@ -200,10 +171,11 @@ always@(posedge clk) begin
   if (~srstn)
     for (i = 0; i < NUM_KNLS_PS1; i = i + 1)
       ofmap_tmp[i] <= 0;
-  else if (valid_bs1)
-    for (i = 0; i < NUM_KNLS_PS1; i = i + 1)
-      if (cnt_bs1_ff[1] == i)
-        ofmap_tmp[i] <= mac1_relu;
+  else if (valid_bs1) begin
+    ofmap_tmp[NUM_KNLS_PS1 - 1] <= mac1_relu;
+    for (i = 0; i < NUM_KNLS_PS1 - 1; i = i + 1)
+      ofmap_tmp[i] <= ofmap_tmp[i + 1];
+  end
 end
 
 always@(posedge clk) begin
@@ -287,11 +259,24 @@ always@(posedge clk) begin
   end
 end
 
+/* buffer input feature map */
+always@(posedge clk) begin
+  if (~srstn) begin
+    pixel_ps1 <= 0;
+    pixel_ps2 <= 0;
+  end
+  else
+    pixel_ps1 <= ifmap[cnt_wt1_ff[0]];
+    pixel_ps2 <= ofmap_tmp[cnt_wt2_ff[0]];
+end
+
 /* multiply */
 always@(*) begin
-  prod1 = wt1 * ifmap[cnt_wt1_ff[1]];
+  //prod1 = wt1 * ifmap[cnt_wt1_ff[1]];
+  prod1 = wt1 * pixel_ps1;
   prod1_roff = prod1 >>> 16;
-  prod2 = wt2 * ofmap_tmp[cnt_wt2_ff[1]];
+  //prod2 = wt2 * ofmap_tmp[cnt_wt2_ff[1]];
+  prod2 = wt2 * pixel_ps2;
   prod2_roff = prod2 >>> 16;
 end
 
@@ -327,26 +312,6 @@ always@(*) begin
     default:  mac2_nx = 0;
   endcase
 end
-
-/*
-always@(*) begin
-  case ({valid_bs2, valid_prod2})
-    2'b01: begin
-      for (i = 0; i < NUM_KNLS_PS2; i = i + 1)
-        mac2_nx[i] = mac2[i] + prod2_roff;
-    end
-    2'b10: begin
-      for (i = 0; i < NUM_KNLS_PS2; i = i + 1)
-        //mac2_nx[i] = mac2[i] + bs2;
-        mac2_nx[i] = pixel2_tmp[i][DATA_WIDTH-1] ? 0 : pixel2_tmp[i];
-    end
-    default:  begin
-      for (i = 0; i < NUM_KNLS_PS2; i = i + 1)
-        mac2_nx[i] = 0;
-    end
-  endcase
-end
-*/
 
 /* counter to record the x-axis of currently loading ifmap */
 always@(posedge clk) begin

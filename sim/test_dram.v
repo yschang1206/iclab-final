@@ -146,6 +146,7 @@ initial begin
   @(negedge clk);
   rdy_data = 0;
   @(negedge clk);
+  wait(done_one_layer == 1);
   $display("%d ns: Layer 4 and 5 (fully connected) done", $time);
 end
 
