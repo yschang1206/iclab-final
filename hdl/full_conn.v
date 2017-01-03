@@ -169,15 +169,16 @@ end
 
 /* register file to store feature map after phase 1 */
 always@(posedge clk) begin
-  //if (~srstn)
-  //  for (i = 0; i < NUM_KNLS_PS1; i = i + 1)
-  //    ofmap_tmp[i] <= 0;
-  //else 
   if (valid_bs1) begin
-    ofmap_tmp[NUM_KNLS_PS1 - 1] <= mac1_relu;
     for (i = 0; i < NUM_KNLS_PS1 - 1; i = i + 1)
       ofmap_tmp[i] <= ofmap_tmp[i + 1];
   end
+end
+always@(posedge clk) begin
+  if (~srstn)
+    ofmap_tmp[NUM_KNLS_PS1 - 1] <= 0;
+  else if (valid_bs1) 
+    ofmap_tmp[NUM_KNLS_PS1 - 1] <= mac1_relu;
 end
 
 always@(posedge clk) begin
