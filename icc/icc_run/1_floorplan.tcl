@@ -8,7 +8,7 @@ read_pin_pad_physical_constraints ../pre_layout/design_data/io_pin.tdf
 # The core utilization can be set up to 70~80% normally. 
 # The core margins are reserved for the core power ring.
 # You must modify it.
-create_floorplan -core_utilization 0.7 -flip_first_row -left_io2core 30 -bottom_io2core 30 -right_io2core 30 -top_io2core 30
+create_floorplan -core_utilization 0.5 -flip_first_row -left_io2core 40 -bottom_io2core 40 -right_io2core 40 -top_io2core 40
 
 # Identify clock-gating for further P&R.
 identify_clock_gating
@@ -20,7 +20,7 @@ create_fp_placement -timing_driven
 # Check the timing report.
 # This step assume there is no net delay, so the timing analysis should pass.
 set_zero_interconnect_delay_mode true
-report_timing | tee ./report/report_time_zero_net_delay.rep
+report_timing > ./report/report_time_zero_net_delay.rep
 # Set the net delay back to false.
 set_zero_interconnect_delay_mode false
 

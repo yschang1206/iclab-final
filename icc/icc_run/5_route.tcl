@@ -23,9 +23,9 @@ route_zrt_auto
 route_opt -stage detail -xtalk_reduction
 
 # Report the timing and power.
-report_timing | tee ./report/report_time_setup_route.rep
-report_timing -delay_type min | tee ./report/report_time_hold_route.rep
-report_power | tee ./report/report_power_route.rep
+report_timing > ./report/report_time_setup_route.rep
+report_timing -delay_type min > ./report/report_time_hold_route.rep
+report_power > ./report/report_power_route.rep
 
 # Power/Ground connection.
 derive_pg_connection -power_net {VDD} -ground_net {VSS} -power_pin {VDD} -ground_pin {VSS} -create_ports top

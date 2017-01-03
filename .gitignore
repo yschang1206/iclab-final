@@ -22,6 +22,10 @@ icc/post_layout
 icc/pre_layout/dc
 icc/pre_layout/design_data/CHIP_syn.v
 icc/pre_layout/design_data/CHIP_syn.sdc
+icc/icc_run/.nfs*
+icc/icc_run/CHIP
+icc/icc_run/.__tmp*
+icc/icc_run/icc_output.txt
 
 nLint*
 *.o

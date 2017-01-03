@@ -125,11 +125,12 @@ assign mac_nx = (en_mac) ? prods : 0;
 
 /* weight register file */
 always @(posedge clk) begin
-  if (~srstn) begin
-    for (i = 0; i < KNL_MAXNUM*KNL_SIZE; i = i+1)
-      knls[i] <= 0;
-  end
-  else if (en_ld_knl) begin
+  //if (~srstn) begin
+  //  for (i = 0; i < KNL_MAXNUM*KNL_SIZE; i = i+1)
+  //    knls[i] <= 0;
+  //end
+  //else 
+  if (en_ld_knl) begin
     knls[KNL_MAXNUM*KNL_SIZE - 1] <= data_in;
     for (i = 0; i < KNL_MAXNUM*KNL_SIZE - 1; i = i+1)
       knls[i] <= knls[i+1];
@@ -138,11 +139,12 @@ end
 
 /* input feature map register file */
 always @(posedge clk) begin
-  if (~srstn) begin
-    for (i = 0; i < KNL_SIZE; i = i+1)
-      ifmap[i] <= 0;
-  end
-  else if (en_ld_ifmap) begin
+  //if (~srstn) begin
+  //  for (i = 0; i < KNL_SIZE; i = i+1)
+  //    ifmap[i] <= 0;
+  //end
+  //else 
+  if (en_ld_ifmap) begin
     ifmap[KNL_SIZE - 1] <= data_in;
     for (i = 0; i < KNL_SIZE-1; i = i+1)
       ifmap[i] <= ifmap[i+1];

@@ -19,8 +19,8 @@ clock_opt -fix_hold_all_clocks -no_clock_route
 
 # Use report_timing to check if setup time is violated,
 # and report_timing -delay_type min to report hold time.
-report_timing | tee ./report/report_time_setup_cts.rep
-report_timing -delay_type min | tee ./report/report_time_hold_cts.rep
+report_timing > ./report/report_time_setup_cts.rep
+report_timing -delay_type min > ./report/report_time_hold_cts.rep
 
 # View the clock tree by selecting View->Visual Mode in the Layout Window.
 # Choose the option Clock Trees in the menu on the right.

@@ -156,10 +156,11 @@ assign dram_en_wr = valid_bs2;
 
 /* weights register file */
 always@(posedge clk) begin
-  if (~srstn)
-    for (i = 0; i < SIZE_PS1; i = i + 1)
-      ifmap[i] <= 0;
-  else if (en_ld_ifmap) begin
+  //if (~srstn)
+  //  for (i = 0; i < SIZE_PS1; i = i + 1)
+  //    ifmap[i] <= 0;
+  //else 
+  if (en_ld_ifmap) begin
     ifmap[SIZE_PS1 - 1] <= data_in;
     for (i = 0; i < SIZE_PS1 - 1; i = i + 1)
       ifmap[i] <= ifmap[i + 1];
@@ -168,10 +169,11 @@ end
 
 /* register file to store feature map after phase 1 */
 always@(posedge clk) begin
-  if (~srstn)
-    for (i = 0; i < NUM_KNLS_PS1; i = i + 1)
-      ofmap_tmp[i] <= 0;
-  else if (valid_bs1) begin
+  //if (~srstn)
+  //  for (i = 0; i < NUM_KNLS_PS1; i = i + 1)
+  //    ofmap_tmp[i] <= 0;
+  //else 
+  if (valid_bs1) begin
     ofmap_tmp[NUM_KNLS_PS1 - 1] <= mac1_relu;
     for (i = 0; i < NUM_KNLS_PS1 - 1; i = i + 1)
       ofmap_tmp[i] <= ofmap_tmp[i + 1];
