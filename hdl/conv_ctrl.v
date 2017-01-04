@@ -92,7 +92,7 @@ wire param_last;
 reg param_last_ff;
 
 /* connection table */
-reg [DATA_WIDTH - 1:0] conn_tbl[0:5];
+reg [15:0] conn_tbl[0:5];
 
 /* wires and registers for kernels */
 reg [3:0] cnt_knl_id, cnt_knl_id_nx;      // kernel id
@@ -281,7 +281,7 @@ always @(posedge clk) begin
     param_data[IDX_WIDTH]  <= 0;
   end
   else if (state[IDX_LD_PARAM]) begin
-    conn_tbl[5] <= data_in;
+    conn_tbl[5] <= data_in[15:0];
     conn_tbl[4] <= conn_tbl[5];
     conn_tbl[3] <= conn_tbl[4];
     conn_tbl[2] <= conn_tbl[3];

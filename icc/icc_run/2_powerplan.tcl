@@ -5,8 +5,8 @@ set power_cg_auto_identify true
 
 # Use Power Network Synthesis of ICC to automatically generate power ring and power straps.
 # You must modify it.
-set_fp_rail_constraints -add_layer  -layer M4 -direction horizontal -max_strap 0 -min_strap 0 -max_width 2 -min_width 2 -spacing minimum
-set_fp_rail_constraints -add_layer  -layer M5 -direction vertical -max_strap 6 -min_strap 3 -max_width 2 -min_width 2 -spacing minimum
+set_fp_rail_constraints -add_layer  -layer M4 -direction horizontal -max_strap 1 -min_strap 1 -max_width 2 -min_width 2 -spacing minimum
+set_fp_rail_constraints -add_layer  -layer M5 -direction vertical -max_strap 7 -min_strap 5 -max_width 2 -min_width 2 -spacing minimum
 set_fp_rail_constraints  -set_ring -nets  {VDD VSS}  -horizontal_ring_layer { M4 } -vertical_ring_layer { M5 } -ring_width 4 -ring_offset 1 -extend_strap core_ring
 
 # Execute PNS.

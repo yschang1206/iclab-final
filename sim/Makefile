@@ -57,10 +57,10 @@ SYN_TEMP =  alib-52 \
 lint:
 	rm -rf *.log nLintDB nLintLog sim_nLint
 	mkdir sim_nLint
-	nLint -f $(HDL_DIR)hdl.f -out nLint.txt
+	nLint -f $(HDL_DIR)hdl.f -out nLint.rep
 	mv nLintDB sim_nLint
 	mv nLintLog sim_nLint
-	cat nLint.txt | less
+	cat nLint.rep | less
 
 # nwave:
 #	verdi & -nWave -f *.fsdb
@@ -98,6 +98,7 @@ synclean:
 	cat ../icc/pre_layout/dc/$(basename $@)_syn.v \
 	../icc/pre_layout/design_data/CHIP_syn_app.v \
 	> ../icc/pre_layout/design_data/CHIP_syn.v
+	cd ../icc/icc_run && rm -rf CHIP *.log *.txt 
 # Now modify CHIP_syn.sdc "set_operating_conditions" and "create_clock"
 # set_operating_conditions -max ss0p95v125c -min ff1p16vn40c
 # #set_wire_load_mode enclosed
@@ -116,10 +117,10 @@ synclean:
 	make simclean
 	rm -rf sim_nLint
 	mkdir sim_nLint
-	nLint $(HDL_DIR)$(basename $@).v -out nLint.txt
+	nLint $(HDL_DIR)$(basename $@).v -out nLint.rep
 	mv nLintDB sim_nLint
 	mv nLintLog sim_nLint
-	cat nLint.txt | less
+	cat nLint.rep | less
 
 %.com :
 	ncverilog -c $(DEFINE_FILE) $(TESTBENCH) -F $(INCLIST)
