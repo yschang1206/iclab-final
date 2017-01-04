@@ -168,7 +168,7 @@ assign addr_out = OFMAP_BASE + {14'd0, cnt_bs2_ff[1]};
 assign dram_en_rd = ~state[IDX_IDLE];
 assign dram_en_wr = valid_bs2;
 
-/* weights register file */
+/* input feature map register file */
 always@(posedge clk) begin
   //if (~srstn)
   //  for (i = 0; i < SIZE_PS1; i = i + 1)
@@ -176,6 +176,11 @@ always@(posedge clk) begin
   //else 
   if (en_ld_ifmap) begin
     ifmap[SIZE_PS1 - 1] <= data_in;
+    for (i = 0; i < SIZE_PS1 - 1; i = i+1)
+      ifmap[i] <= ifmap[i+1];
+  end
+  else if (valid_prod1) begin
+    ifmap[SIZE_PS1 - 1] <= ifmap[0];
     for (i = 0; i < SIZE_PS1 - 1; i = i+1)
       ifmap[i] <= ifmap[i+1];
   end
@@ -187,6 +192,11 @@ always @(posedge clk) begin
     ofmap_tmp[NUM_KNLS_PS1 - 1] <= 0;
   else if (valid_bs1) 
     ofmap_tmp[NUM_KNLS_PS1 - 1] <= mac1_relu;
+  else if (valid_prod2) begin
+    ofmap_tmp[NUM_KNLS_PS1 - 1] <= ofmap_tmp[0];
+    for (i = 0; i < NUM_KNLS_PS1 - 1; i = i + 1)
+      ofmap_tmp[i] <= ofmap_tmp[i + 1];
+  end
 end
 
 always @(posedge clk) begin
@@ -696,10 +706,12 @@ end
 /* multiply */
 always@(*) begin
   //prod1 = wt1 * ifmap[cnt_wt1_ff[1]];
-  prod1 = wt1 * pixel_ps1;
+  //prod1 = wt1 * pixel_ps1;
+  prod1 = wt1 * ifmap[0];
   prod1_roff = prod1 >>> 16;
   //prod2 = wt2 * ofmap_tmp[cnt_wt2_ff[1]];
-  prod2 = wt2 * pixel_ps2;
+  //prod2 = wt2 * pixel_ps2;
+  prod2 = wt2 * ofmap_tmp[0];
   prod2_roff = prod2 >>> 16;
 end
 
