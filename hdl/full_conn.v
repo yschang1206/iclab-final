@@ -286,8 +286,9 @@ always@(posedge clk) begin
     cnt_bs2_ff[1] <= cnt_bs2_ff[0];
   end
 end
+/*
 reg signed [DATA_WIDTH-1:0] pixel_ps1_nx;
-/* buffer input feature map */
+// buffer input feature map
 always@(posedge clk) begin
   if (~srstn) begin
     pixel_ps1 <= 0;
@@ -703,6 +704,7 @@ always @(*) begin
     default : pixel_ps1_nx = 0;
   endcase
 end
+*/
 /* multiply */
 always@(*) begin
   //prod1 = wt1 * ifmap[cnt_wt1_ff[1]];
