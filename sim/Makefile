@@ -80,6 +80,14 @@ gatesim:
 	mv INCA_libs sim_gate
 	mv *.log sim_gate
 
+postsim:
+	rm -rf *.log INCA_libs sim_post
+	mkdir sim_post
+	ncverilog -f sim_post.f -warnmax 0
+	mv INCA_libs sim_post
+	mv *.log sim_post
+
+
 syn:
 	cd $(SYN_DIR) && nohup dc_shell -f synthesis.tcl | tee da.log
 

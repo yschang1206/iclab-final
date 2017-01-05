@@ -1,0 +1,33 @@
+Information: Updating graph... (UID-83)
+ 
+****************************************
+Report : area
+Design : CHIP
+Version: H-2013.03-ICC-SP1
+Date   : Wed Jan  4 23:33:00 2017
+****************************************
+
+Information: Updating design information... (UID-85)
+Information: Input delay ('rise') on clock port 'clk' will be added to the clock's propagated skew. (TIM-112)
+Information: Input delay ('fall') on clock port 'clk' will be added to the clock's propagated skew. (TIM-112)
+Library(s) Used:
+
+    saed32hvt_ss0p95v125c (File: /usr/cadtool/SAED32_EDK/lib/stdcell_hvt/db_nldm/saed32hvt_ss0p95v125c.db)
+
+Number of ports:                          111
+Number of nets:                            21
+Number of cells:                           11
+Number of combinational cells:             10
+Number of sequential cells:                 0
+Number of macros:                           0
+Number of buf/inv:                          3
+Number of references:                       4
+
+Combinational area:       180382.515440
+Buf/Inv area:             43210.833924
+Noncombinational area:    231050.449226
+Net Interconnect area:    150493.769186
+
+Total cell area:          411432.964666
+Total area:               561926.733852
+1

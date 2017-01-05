@@ -1,0 +1,58 @@
+Information: Updating design information... (UID-85)
+Warning: Design 'CHIP' contains 1 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
+Information: Propagating switching activity (low effort zero delay simulation). (PWR-6)
+Warning: Design has unannotated primary inputs. (PWR-414)
+Warning: Design has unannotated sequential cell outputs. (PWR-415)
+ 
+****************************************
+Report : power
+        -analysis_effort low
+Design : CHIP
+Version: H-2013.03-ICC-SP1
+Date   : Wed Jan  4 22:12:21 2017
+****************************************
+
+
+Library(s) Used:
+
+    saed32hvt_ss0p95v125c (File: /usr/cadtool/SAED32_EDK/lib/stdcell_hvt/db_nldm/saed32hvt_ss0p95v125c.db)
+
+
+Operating Conditions: ss0p95v125c   Library: saed32hvt_ss0p95v125c
+Wire Load Model Mode: enclosed
+
+Design        Wire Load Model            Library
+------------------------------------------------
+CHIP                   ForQA             saed32hvt_ss0p95v125c
+
+
+Global Operating Voltage = 0.95 
+Power-specific unit information :
+    Voltage Units = 1V
+    Capacitance Units = 1.000000ff
+    Time Units = 1ns
+    Dynamic Power Units = 1uW    (derived from V,C,T units)
+    Leakage Power Units = 1pW
+
+
+  Cell Internal Power  =   1.3664 mW   (84%)
+  Net Switching Power  = 257.1069 uW   (16%)
+                         ---------
+Total Dynamic Power    =   1.6235 mW  (100%)
+
+Cell Leakage Power     =   7.1737 mW
+
+
+                 Internal         Switching           Leakage            Total
+Power Group      Power            Power               Power              Power   (   %    )  Attrs
+--------------------------------------------------------------------------------------------------
+io_pad             0.0000            0.0000            0.0000            0.0000  (   0.00%)
+memory             0.0000            0.0000            0.0000            0.0000  (   0.00%)
+black_box          0.0000            0.0000            0.0000            0.0000  (   0.00%)
+clock_network    196.1457          244.6679        5.7684e+08        1.0176e+03  (  11.57%)
+register       1.1628e+03            0.4377        4.3939e+09        5.5572e+03  (  63.17%)
+sequential         0.0000            0.0000            0.0000            0.0000  (   0.00%)
+combinational      7.4652           12.0011        2.2023e+09        2.2218e+03  (  25.26%)
+--------------------------------------------------------------------------------------------------
+Total          1.3664e+03 uW       257.1067 uW     7.1731e+09 pW     8.7966e+03 uW
+1

@@ -1,0 +1,77 @@
+Information: linking reference library : /usr/cadtool/cad/synopsys/SAED32_EDK/lib/stdcell_hvt/milkyway/saed32nm_hvt_1p9m. (PSYN-878)
+Information: Loading local_link_library attribute {saed32hvt_ss0p95v125c.db, saed32hvt_ff1p16vn40c.db, saed32io_wb_ss0p95v125c_2p25v.db, saed32io_wb_ff1p16vn40c_2p75v.db}. (MWDC-290)
+
+  Linking design 'CHIP'
+  Using the following designs and libraries:
+  --------------------------------------------------------------------------
+  * (3144 designs)            CHIP.CEL, etc
+  saed32hvt_ss0p95v125c (library)
+                              /usr/cadtool/SAED32_EDK/lib/stdcell_hvt/db_nldm/saed32hvt_ss0p95v125c.db
+  saed32hvt_ff1p16vn40c (library)
+                              /usr/cadtool/SAED32_EDK/lib/stdcell_hvt/db_nldm/saed32hvt_ff1p16vn40c.db
+  saed32io_wb_ss0p95v125c_2p25v (library)
+                              /usr/cadtool/SAED32_EDK/lib/io_std/db_nldm/saed32io_wb_ss0p95v125c_2p25v.db
+  saed32io_wb_ff1p16vn40c_2p75v (library)
+                              /usr/cadtool/SAED32_EDK/lib/io_std/db_nldm/saed32io_wb_ff1p16vn40c_2p75v.db
+  dw_foundation.sldb (library)
+                              /usr/cadtool/SAED32_EDK/synthesis/cur/libraries/syn/dw_foundation.sldb
+
+Load global CTS reference options from NID to stack
+Information: Updating design information... (UID-85)
+Warning: Design 'CHIP' contains 1 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
+Information: Propagating switching activity (low effort zero delay simulation). (PWR-6)
+Warning: Design has unannotated primary inputs. (PWR-414)
+Warning: Design has unannotated sequential cell outputs. (PWR-415)
+ 
+****************************************
+Report : power
+        -analysis_effort low
+Design : CHIP
+Version: H-2013.03-ICC-SP1
+Date   : Wed Jan  4 21:55:06 2017
+****************************************
+
+
+Library(s) Used:
+
+    saed32hvt_ss0p95v125c (File: /usr/cadtool/SAED32_EDK/lib/stdcell_hvt/db_nldm/saed32hvt_ss0p95v125c.db)
+
+
+Operating Conditions: ss0p95v125c   Library: saed32hvt_ss0p95v125c
+Wire Load Model Mode: enclosed
+
+Design        Wire Load Model            Library
+------------------------------------------------
+CHIP                   ForQA             saed32hvt_ss0p95v125c
+
+
+Global Operating Voltage = 0.95 
+Power-specific unit information :
+    Voltage Units = 1V
+    Capacitance Units = 1.000000ff
+    Time Units = 1ns
+    Dynamic Power Units = 1uW    (derived from V,C,T units)
+    Leakage Power Units = 1pW
+
+
+  Cell Internal Power  =   1.3693 mW   (85%)
+  Net Switching Power  = 235.1047 uW   (15%)
+                         ---------
+Total Dynamic Power    =   1.6044 mW  (100%)
+
+Cell Leakage Power     =   6.6157 mW
+
+
+                 Internal         Switching           Leakage            Total
+Power Group      Power            Power               Power              Power   (   %    )  Attrs
+--------------------------------------------------------------------------------------------------
+io_pad             0.0000            0.0000            0.0000            0.0000  (   0.00%)
+memory             0.0000            0.0000            0.0000            0.0000  (   0.00%)
+black_box          0.0000            0.0000            0.0000            0.0000  (   0.00%)
+clock_network    197.4628          188.3997        5.7532e+08          961.1690  (  11.69%)
+register       1.1675e+03            0.6349        4.3937e+09        5.5619e+03  (  67.67%)
+sequential         0.0000            0.0000            0.0000            0.0000  (   0.00%)
+combinational      4.2778           46.0705        1.6457e+09        1.6961e+03  (  20.64%)
+--------------------------------------------------------------------------------------------------
+Total          1.3693e+03 uW       235.1050 uW     6.6148e+09 pW     8.2192e+03 uW
+1

@@ -1,4 +1,4 @@
-test_dram.v
+test_top.v
 dram.v
 ../hdl/conv.v
 ../hdl/conv_ctrl.v

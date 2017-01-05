@@ -1,0 +1,112 @@
+Information: Updating graph... (UID-83)
+Warning: Design 'CHIP' contains 1 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
+Warning: Timer is in zero interconnect delay mode. (TIM-177)
+Information: Updating design information... (UID-85)
+Warning: Design 'CHIP' contains 1 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : CHIP
+Version: H-2013.03-ICC-SP1
+Date   : Wed Jan  4 20:46:19 2017
+****************************************
+
+ z Timer is in zero interconnect delay mode.
+
+ # A fanout number of 1000 was used for high fanout net computations.
+
+Operating Conditions: ss0p95v125c   Library: saed32hvt_ss0p95v125c
+
+  Startpoint: U0/full_conn/ofmap_tmp_reg_0__2_
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: U0/full_conn/mac2_reg_31_
+            (rising edge-triggered flip-flop clocked by clk)
+  Path Group: clk
+  Path Type: max
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock clk (rise edge)                                   0.00       0.00
+  clock network delay (ideal)                             0.00       0.00
+  U0/full_conn/ofmap_tmp_reg_0__2_/CLK (DFFX1_HVT)        0.00       0.00 r
+  U0/full_conn/ofmap_tmp_reg_0__2_/Q (DFFX1_HVT)          0.23 z     0.23 r
+  U0/full_conn/U2478/Y (NAND2X0_HVT)                      0.14 z     0.38 f
+  U0/full_conn/U574/Y (INVX1_HVT)                         0.09 z     0.47 r
+  U0/full_conn/U65/Y (AO21X1_HVT)                         0.15 z     0.62 r
+  U0/full_conn/U2773/SO (HADDX1_HVT)                      0.16 z     0.78 f
+  U0/full_conn/U2782/S (FADDX1_HVT)                       0.20 z     0.98 r
+  U0/full_conn/U2783/Y (AO222X1_HVT)                      0.18 z     1.15 r
+  U0/full_conn/U2788/Y (AO222X1_HVT)                      0.21 z     1.36 r
+  U0/full_conn/U2790/Y (AO222X1_HVT)                      0.21 z     1.58 r
+  U0/full_conn/U2791/Y (AO222X1_HVT)                      0.18 z     1.76 r
+  U0/full_conn/U2792/Y (AO222X1_HVT)                      0.18 z     1.95 r
+  U0/full_conn/U2793/Y (AO222X1_HVT)                      0.18 z     2.13 r
+  U0/full_conn/U2794/Y (AO222X1_HVT)                      0.18 z     2.31 r
+  U0/full_conn/U2795/Y (AO222X1_HVT)                      0.21 z     2.53 r
+  U0/full_conn/U2796/Y (AO222X1_HVT)                      0.18 z     2.71 r
+  U0/full_conn/U2797/Y (AOI222X1_HVT)                     0.24 z     2.95 f
+  U0/full_conn/U2798/Y (OAI222X1_HVT)                     0.15 z     3.09 r
+  U0/full_conn/U581/Y (AO222X1_HVT)                       0.18 z     3.27 r
+  U0/full_conn/intadd_33_U2/CO (FADDX1_HVT)               0.14 z     3.42 r
+  U0/full_conn/U577/Y (INVX1_HVT)                         0.05 z     3.46 f
+  U0/full_conn/intadd_5_U11/CO (FADDX1_HVT)               0.11 z     3.57 f
+  U0/full_conn/intadd_5_U10/CO (FADDX1_HVT)               0.11 z     3.68 f
+  U0/full_conn/intadd_5_U9/CO (FADDX1_HVT)                0.11 z     3.79 f
+  U0/full_conn/intadd_5_U8/CO (FADDX1_HVT)                0.11 z     3.90 f
+  U0/full_conn/intadd_5_U7/CO (FADDX1_HVT)                0.11 z     4.01 f
+  U0/full_conn/intadd_5_U6/CO (FADDX1_HVT)                0.11 z     4.12 f
+  U0/full_conn/intadd_5_U5/CO (FADDX1_HVT)                0.11 z     4.23 f
+  U0/full_conn/intadd_5_U4/CO (FADDX1_HVT)                0.11 z     4.34 f
+  U0/full_conn/intadd_5_U3/CO (FADDX1_HVT)                0.11 z     4.45 f
+  U0/full_conn/intadd_5_U2/CO (FADDX1_HVT)                0.10 z     4.55 f
+  U0/full_conn/U576/Y (INVX1_HVT)                         0.04 z     4.59 r
+  U0/full_conn/intadd_7_U6/CO (FADDX1_HVT)                0.13 z     4.73 r
+  U0/full_conn/intadd_7_U5/CO (FADDX1_HVT)                0.14 z     4.87 r
+  U0/full_conn/intadd_7_U4/CO (FADDX1_HVT)                0.14 z     5.00 r
+  U0/full_conn/intadd_7_U3/CO (FADDX1_HVT)                0.15 z     5.15 r
+  U0/full_conn/U111/S (FADDX1_HVT)                        0.24 z     5.39 f
+  U0/full_conn/U2809/S (FADDX1_HVT)                       0.20 z     5.59 r
+  U0/full_conn/U2810/S (FADDX1_HVT)                       0.21 z     5.81 f
+  U0/full_conn/U2811/S (FADDX1_HVT)                       0.20 z     6.01 r
+  U0/full_conn/U2812/S (FADDX1_HVT)                       0.22 z     6.23 f
+  U0/full_conn/U2819/S (FADDX1_HVT)                       0.22 z     6.44 r
+  U0/full_conn/U2829/S (FADDX1_HVT)                       0.22 z     6.67 f
+  U0/full_conn/U633/S (FADDX1_HVT)                        0.23 z     6.90 r
+  U0/full_conn/U337/Y (INVX1_HVT)                         0.09 z     6.99 f
+  U0/full_conn/U336/Y (INVX1_HVT)                         0.09 z     7.07 r
+  U0/full_conn/intadd_3_U15/CO (FADDX1_HVT)               0.16 z     7.23 r
+  U0/full_conn/intadd_3_U14/CO (FADDX1_HVT)               0.14 z     7.37 r
+  U0/full_conn/intadd_3_U13/CO (FADDX1_HVT)               0.14 z     7.51 r
+  U0/full_conn/intadd_3_U12/CO (FADDX1_HVT)               0.14 z     7.65 r
+  U0/full_conn/intadd_3_U11/CO (FADDX1_HVT)               0.14 z     7.79 r
+  U0/full_conn/intadd_3_U10/CO (FADDX1_HVT)               0.14 z     7.93 r
+  U0/full_conn/intadd_3_U9/CO (FADDX1_HVT)                0.14 z     8.07 r
+  U0/full_conn/intadd_3_U8/CO (FADDX1_HVT)                0.14 z     8.21 r
+  U0/full_conn/intadd_3_U7/CO (FADDX1_HVT)                0.14 z     8.35 r
+  U0/full_conn/intadd_3_U6/CO (FADDX1_HVT)                0.14 z     8.49 r
+  U0/full_conn/intadd_3_U5/CO (FADDX1_HVT)                0.14 z     8.63 r
+  U0/full_conn/intadd_3_U4/CO (FADDX1_HVT)                0.14 z     8.76 r
+  U0/full_conn/intadd_3_U3/CO (FADDX1_HVT)                0.14 z     8.90 r
+  U0/full_conn/intadd_3_U2/CO (FADDX1_HVT)                0.16 z     9.07 r
+  U0/full_conn/U2835/Y (OA21X1_HVT)                       0.12 z     9.19 r
+  U0/full_conn/U2837/Y (OA221X1_HVT)                      0.13 z     9.32 r
+  U0/full_conn/U2838/SO (HADDX1_HVT)                      0.15 z     9.47 f
+  U0/full_conn/mac2_reg_31_/RSTB (DFFSSRX1_HVT)           0.00 z     9.47 f
+  data arrival time                                                  9.47
+
+  clock clk (rise edge)                                  12.00      12.00
+  clock network delay (ideal)                             0.00      12.00
+  U0/full_conn/mac2_reg_31_/CLK (DFFSSRX1_HVT)            0.00      12.00 r
+  library setup time                                     -0.14      11.86
+  data required time                                                11.86
+  --------------------------------------------------------------------------
+  data required time                                                11.86
+  data arrival time                                                 -9.47
+  --------------------------------------------------------------------------
+  slack (MET)                                                        2.40
+
+
+1

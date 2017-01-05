@@ -1,8 +1,8 @@
 /**
- * test_dram.v
+ * test_top.v
  */
 `timescale  1ns/10ps
-module test_dram;
+module test_top;
 
 parameter CYCLE = 10;
 parameter END_CYCLE = 100000;
@@ -175,7 +175,12 @@ initial begin
   `ifdef GATESIM
     while (1) begin
       #(CYCLE * 10000);
-      $display("%d ns: Still working", $time);
+      $display("%d ns: Gate simulation is still working", $time);
+    end
+  `elsif POSTSIM
+    while (1) begin
+      #(CYCLE * 10000);
+      $display("%d ns: Post simulation is still working", $time);
     end
   `endif
 end
@@ -192,11 +197,11 @@ initial begin
   //  $fsdbDumpvars();
     $sdf_annotate("../icc/post_layout/CHIP_layout.sdf",CHIP0);
   `elsif DUMP
-    $fsdbDumpfile("test_dram.fsdb");
+    $fsdbDumpfile("presim.fsdb");
     $fsdbDumpvars();
   `elsif DUMPMDA
-    $fsdbDumpfile("test_dram.fsdb");
-    $fsdbDumpvars(0, test_dram, "+mda");
+    $fsdbDumpfile("presim.fsdb");
+    $fsdbDumpvars(0, test_top, "+mda");
   `endif
 end
 

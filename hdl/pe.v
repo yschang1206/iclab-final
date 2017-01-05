@@ -64,7 +64,7 @@ end
 
 reg signed [DATA_WIDTH - 1:0] knls_ff [0:24];
 reg signed [DATA_WIDTH - 1:0] knls_data [0:24];
-
+/*
 always @(*) begin
   for (i = 0; i < 25; i = i+1) begin
     case (addr_knl_prod) // synopsys parallel_case
@@ -86,6 +86,28 @@ always @(*) begin
       default : knls_data[i] = knls[375+i];
     endcase
   end
+end
+*/
+
+always @(*) begin
+  case (addr_knl_prod) // synopsys parallel_case
+    4'd0 : for (i = 0; i < 25 ; i = i+1) knls_data[i] = knls[0+i];
+    4'd1 : for (i = 0; i < 25 ; i = i+1) knls_data[i] = knls[25+i];
+    4'd2 : for (i = 0; i < 25 ; i = i+1) knls_data[i] = knls[50+i];
+    4'd3 : for (i = 0; i < 25 ; i = i+1) knls_data[i] = knls[75+i];
+    4'd4 : for (i = 0; i < 25 ; i = i+1) knls_data[i] = knls[100+i];
+    4'd5 : for (i = 0; i < 25 ; i = i+1) knls_data[i] = knls[125+i];
+    4'd6 : for (i = 0; i < 25 ; i = i+1) knls_data[i] = knls[150+i];
+    4'd7 : for (i = 0; i < 25 ; i = i+1) knls_data[i] = knls[175+i];
+    4'd8 : for (i = 0; i < 25 ; i = i+1) knls_data[i] = knls[200+i];
+    4'd9 : for (i = 0; i < 25 ; i = i+1) knls_data[i] = knls[225+i];
+    4'd10 : for (i = 0; i < 25 ; i = i+1) knls_data[i] = knls[250+i];
+    4'd11 : for (i = 0; i < 25 ; i = i+1) knls_data[i] = knls[275+i];
+    4'd12 : for (i = 0; i < 25 ; i = i+1) knls_data[i] = knls[300+i];
+    4'd13 : for (i = 0; i < 25 ; i = i+1) knls_data[i] = knls[325+i];
+    4'd14 : for (i = 0; i < 25 ; i = i+1) knls_data[i] = knls[350+i];
+    default : for (i = 0; i < 25 ; i = i+1) knls_data[i] = knls[375+i];
+  endcase
 end
 
 /* ------------------------------------------------------------- */

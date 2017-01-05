@@ -1,0 +1,387 @@
+
+  Loading design 'CHIP'
+
+
+Warning: Port 'dram_valid' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[7]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[6]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[5]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[4]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[3]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[2]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[1]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[0]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[15]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[14]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[13]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[12]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[11]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[10]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[9]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[8]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[23]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[22]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[21]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[20]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[19]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[18]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[17]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[16]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[31]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[30]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[29]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[28]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[27]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[26]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[25]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_in[24]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[7]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[6]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[5]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[4]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[3]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[2]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[1]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[0]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[15]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[14]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[13]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[12]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[11]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[10]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[9]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[8]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[23]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[22]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[21]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[20]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[19]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[18]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[17]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[16]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[31]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[30]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[29]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[28]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[27]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[26]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[25]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'data_out[24]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[7]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[6]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[5]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[4]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[3]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[2]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[1]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[0]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[15]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[14]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[13]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[12]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[11]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[10]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[9]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[8]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[5]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[4]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[3]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[2]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[1]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[0]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[17]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_in[16]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[13]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[12]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[11]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[10]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[9]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[8]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[7]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[6]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[17]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[16]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[15]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+Warning: Port 'addr_out[14]' cannot inherit its location, because the port does not connect with any leaf cell pins. Please check the floorplan. (PSYN-1042)
+
+
+Information: Library Manufacturing Grid(GridResolution) : 1
+Information: Time Unit from Milkyway design library: 'ns' 
+Information: Design Library and main library timing units are matched - 1.000 ns. 
+Information: Resistance Unit from Milkyway design library: 'kohm' 
+Warning: Mismatch in the main library and the Milkyway library resistance units. In the main library it is 1000.000 kohm and in the Milkyway design library it is 1.000 kohm. Check and correct the resistance units in the .tf and .db files. (PSYN-476)
+Information: Capacitance Unit from Milkyway design library: 'ff' 
+Information: Design Library and main library capacitance units are matched - 0.001 pf. 
+3958/114111 nets are routed
+Warning: Inconsistent library data found for layer PO. (RCEX-018)
+Information: The distance unit in Capacitance and Resistance is 1 micron. (RCEX-007)
+Information: The RC model used is global route TLU+. (RCEX-015)
+Information: Start mixed mode parasitic extraction. (RCEX-023)
+Information: Start rc extraction...
+Warning: Not enough nets are routed (3958/114111 < 0.66667); will do extraction by using placement congestion map as background. (RCEX-047)
+Warning: Net 'U0/clk_G1B6I2' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/clk_G1B6I3' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/clk_G1B6I10' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/clk_G1B6I13' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17112' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17217' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17212' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17192' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17187' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17167' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17157' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17137' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17522' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17487' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17452' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17442' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17427' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17407' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17362' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17357' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17352' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17727' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17717' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17707' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17702' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17677' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17647' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17642' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17622' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17617' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17607' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17957' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17947' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17937' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17912' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17907' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17892' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net17817' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18172' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18132' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18122' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18102' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18087' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18382' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18367' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18332' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18327' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18322' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18312' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18307' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18297' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18292' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18287' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18282' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18267' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18262' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18252' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18242' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18237' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18232' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18227' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18222' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18217' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18212' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18202' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18197' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18177' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18587' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18572' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18562' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18527' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18502' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18482' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18432' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18807' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18797' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18767' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18692' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18687' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18672' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18657' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18642' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18607' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net19007' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net19002' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18992' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18987' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18967' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18947' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18922' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18917' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18902' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18897' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18877' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18872' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net18842' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net19187' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net19137' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net19077' is not fully connected and will be estimated. (RCEX-060)
+Warning: Net 'U0/full_conn/net19062' is not fully connected and will be estimated. (RCEX-060)
+Warning: not to display message after 100.(RCEX-060)
+Warning: total 1117 open nets.(RCEX-060)
+Information: Parasitic source is LPE. (RCEX-040)
+Information: Parasitic mode is RealRVirtualC. (RCEX-041)
+Information: Using virtual shield extraction. (RCEX-081)
+Information: Extraction mode is MIN_MAX. (RCEX-042)
+Information: Extraction derate is 125/125/125. (RCEX-043)
+Information: Start back annotation for parasitic extraction. (RCEX-023)
+Information: End back annotation for parasitic extraction. (RCEX-023)
+Information: Start timing update for parasitic extraction. (RCEX-023)
+Information: End timing update for parasitic extraction. (RCEX-023)
+Information: End parasitic extraction. (RCEX-023)
+Information: Start rc update...
+****************************************************************
+Information: TLUPlus based RC computation is enabled. (RCEX-141)
+****************************************************************
+Information: The distance unit in Capacitance and Resistance is 1 micron. (RCEX-007)
+Information: The RC model used is TLU+. (RCEX-015)
+Information: Library Derived Cap for layer M1 : 0.16 0.14 (RCEX-011)
+Information: Library Derived Res for layer M1 : 2e-06 2e-06 (RCEX-011)
+Information: Library Derived Cap for layer M2 : 0.17 0.15 (RCEX-011)
+Information: Library Derived Res for layer M2 : 1.8e-06 1.8e-06 (RCEX-011)
+Information: Library Derived Cap for layer M3 : 0.11 0.096 (RCEX-011)
+Information: Library Derived Res for layer M3 : 1.8e-06 1.8e-06 (RCEX-011)
+Information: Library Derived Cap for layer M4 : 0.11 0.096 (RCEX-011)
+Information: Library Derived Res for layer M4 : 1.8e-06 1.8e-06 (RCEX-011)
+Information: Library Derived Cap for layer M5 : 0.094 0.079 (RCEX-011)
+Information: Library Derived Res for layer M5 : 1.8e-06 1.8e-06 (RCEX-011)
+Information: Library Derived Cap for layer M6 : 0.094 0.079 (RCEX-011)
+Information: Library Derived Res for layer M6 : 1.8e-06 1.8e-06 (RCEX-011)
+Information: Library Derived Cap for layer M7 : 0.092 0.076 (RCEX-011)
+Information: Library Derived Res for layer M7 : 1.8e-06 1.8e-06 (RCEX-011)
+Information: Library Derived Cap for layer M8 : 0.092 0.076 (RCEX-011)
+Information: Library Derived Res for layer M8 : 1.8e-06 1.8e-06 (RCEX-011)
+Information: Library Derived Cap for layer M9 : 0.11 0.088 (RCEX-011)
+Information: Library Derived Res for layer M9 : 1.8e-06 1.8e-06 (RCEX-011)
+Information: Library Derived Cap for layer MRDL : 0.11 0.11 (RCEX-011)
+Information: Library Derived Res for layer MRDL : 1.8e-07 1.8e-07 (RCEX-011)
+Information: Library Derived Horizontal Cap : 0.11 0.096 (RCEX-011)
+Information: Library Derived Horizontal Res : 1.8e-06 1.8e-06 (RCEX-011)
+Information: Library Derived Vertical Cap : 0.11 0.1 (RCEX-011)
+Information: Library Derived Vertical Res : 1.5e-06 1.5e-06 (RCEX-011)
+Information: Using derived R and C coefficients. (RCEX-008)
+Information: Using region-based R and C coefficients. (RCEX-013)
+Information: Library Derived Via Res : 4.6e-07 4.6e-07 (RCEX-011)
+Information: End rc update.
+Information: The mixed mode parasitic extraction has been performed. (RCEX-202)
+Information: Updating graph... (UID-83)
+Information: Updating design information... (UID-85)
+Information: Input delay ('rise') on clock port 'clk' will be added to the clock's propagated skew. (TIM-112)
+Information: Input delay ('fall') on clock port 'clk' will be added to the clock's propagated skew. (TIM-112)
+Warning: Clock network timing may not be up-to-date since only 36.223385 percentage of clock nets are routed. (TIM-233)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : CHIP
+Version: H-2013.03-ICC-SP1
+Date   : Wed Jan  4 22:38:38 2017
+****************************************
+
+ * Some/all delay information is back-annotated.
+
+Operating Conditions: ss0p95v125c   Library: saed32hvt_ss0p95v125c
+	Parasitic source    : LPE
+	Parasitic mode      : RealRVirtualC
+	Extraction mode     : MIN_MAX
+	Extraction derating : 125/125/125
+
+Information: Percent of Arnoldi-based delays =  8.51%
+
+  Startpoint: U0/full_conn/ofmap_tmp_reg_0__2_
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: U0/full_conn/mac2_reg_31_
+            (rising edge-triggered flip-flop clocked by clk)
+  Path Group: clk
+  Path Type: max
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock clk (rise edge)                                   0.00       0.00
+  clock network delay (propagated)                        0.65       0.65
+  U0/full_conn/ofmap_tmp_reg_0__2_/CLK (DFFX1_HVT)        0.00       0.65 r
+  U0/full_conn/ofmap_tmp_reg_0__2_/Q (DFFX1_HVT)          0.29       0.94 f
+  U0/full_conn/U3122/Y (DELLN3X2_HVT)                     0.82 *     1.75 f
+  U0/full_conn/U2478/Y (NAND2X2_HVT)                      0.15 *     1.91 r
+  U0/full_conn/U524/Y (INVX2_HVT)                         0.08 *     1.98 f
+  U0/full_conn/U65/Y (AO21X1_HVT)                         0.13 *     2.12 f
+  U0/full_conn/U2773/SO (HADDX1_HVT)                      0.12 *     2.24 f
+  U0/full_conn/U2782/S (FADDX1_HVT)                       0.20 *     2.44 r
+  U0/full_conn/U2783/Y (AO222X1_HVT)                      0.18 *     2.62 r
+  U0/full_conn/U2788/Y (AO222X1_HVT)                      0.22 *     2.85 r
+  U0/full_conn/U2790/Y (AO222X1_HVT)                      0.22 *     3.07 r
+  U0/full_conn/U2791/Y (AO222X1_HVT)                      0.19 *     3.26 r
+  U0/full_conn/U2792/Y (AO222X1_HVT)                      0.19 *     3.45 r
+  U0/full_conn/U2793/Y (AO222X1_HVT)                      0.19 *     3.64 r
+  U0/full_conn/U2794/Y (AO222X1_HVT)                      0.19 *     3.84 r
+  U0/full_conn/U2795/Y (AO222X1_HVT)                      0.22 *     4.06 r
+  U0/full_conn/U2796/Y (AO222X1_HVT)                      0.19 *     4.26 r
+  U0/full_conn/U2797/Y (AOI222X1_HVT)                     0.25 *     4.51 f
+  U0/full_conn/U2798/Y (OAI222X1_HVT)                     0.15 *     4.66 r
+  U0/full_conn/U581/Y (AO222X1_HVT)                       0.20 *     4.86 r
+  U0/full_conn/intadd_33_U2/CO (FADDX1_HVT)               0.16 *     5.02 r
+  U0/full_conn/U577/Y (INVX0_HVT)                         0.07 *     5.09 f
+  U0/full_conn/intadd_5_U11/CO (FADDX1_HVT)               0.13 *     5.22 f
+  U0/full_conn/intadd_5_U10/CO (FADDX1_HVT)               0.12 *     5.35 f
+  U0/full_conn/intadd_5_U9/CO (FADDX1_HVT)                0.12 *     5.47 f
+  U0/full_conn/intadd_5_U8/CO (FADDX1_HVT)                0.12 *     5.59 f
+  U0/full_conn/intadd_5_U7/CO (FADDX1_HVT)                0.12 *     5.71 f
+  U0/full_conn/intadd_5_U6/CO (FADDX1_HVT)                0.12 *     5.83 f
+  U0/full_conn/intadd_5_U5/CO (FADDX1_HVT)                0.12 *     5.95 f
+  U0/full_conn/intadd_5_U4/CO (FADDX1_HVT)                0.12 *     6.06 f
+  U0/full_conn/intadd_5_U3/CO (FADDX1_HVT)                0.12 *     6.18 f
+  U0/full_conn/intadd_5_U2/CO (FADDX1_HVT)                0.11 *     6.29 f
+  U0/full_conn/U576/Y (INVX0_HVT)                         0.05 *     6.34 r
+  U0/full_conn/intadd_7_U6/CO (FADDX1_HVT)                0.15 *     6.49 r
+  U0/full_conn/intadd_7_U5/CO (FADDX1_HVT)                0.19 *     6.68 r
+  U0/full_conn/intadd_7_U4/CO (FADDX1_HVT)                0.18 *     6.85 r
+  U0/full_conn/intadd_7_U3/CO (FADDX1_HVT)                0.16 *     7.01 r
+  U0/full_conn/U111/S (FADDX1_HVT)                        0.28 *     7.30 f
+  U0/full_conn/U2809/S (FADDX1_HVT)                       0.23 *     7.52 r
+  U0/full_conn/U2810/S (FADDX1_HVT)                       0.22 *     7.74 f
+  U0/full_conn/U2811/S (FADDX1_HVT)                       0.23 *     7.97 r
+  U0/full_conn/U2812/S (FADDX1_HVT)                       0.23 *     8.20 f
+  U0/full_conn/U2819/S (FADDX1_HVT)                       0.22 *     8.42 r
+  U0/full_conn/U2829/S (FADDX1_HVT)                       0.25 *     8.67 f
+  U0/full_conn/U633/S (FADDX1_HVT)                        0.24 *     8.92 r
+  U0/full_conn/U563/Y (NBUFFX16_HVT)                      0.12 *     9.04 r
+  U0/full_conn/U615/Y (INVX8_HVT)                         0.13 *     9.16 f
+  U0/full_conn/U782/Y (INVX8_HVT)                         0.09 *     9.25 r
+  U0/full_conn/intadd_3_U15/CO (FADDX1_HVT)               0.19 *     9.44 r
+  U0/full_conn/intadd_3_U14/CO (FADDX1_HVT)               0.16 *     9.59 r
+  U0/full_conn/intadd_3_U13/CO (FADDX1_HVT)               0.15 *     9.74 r
+  U0/full_conn/intadd_3_U12/CO (FADDX1_HVT)               0.15 *     9.89 r
+  U0/full_conn/intadd_3_U11/CO (FADDX1_HVT)               0.15 *    10.04 r
+  U0/full_conn/intadd_3_U10/CO (FADDX1_HVT)               0.15 *    10.18 r
+  U0/full_conn/intadd_3_U9/CO (FADDX1_HVT)                0.15 *    10.33 r
+  U0/full_conn/intadd_3_U8/CO (FADDX1_HVT)                0.15 *    10.48 r
+  U0/full_conn/intadd_3_U7/CO (FADDX1_HVT)                0.15 *    10.64 r
+  U0/full_conn/intadd_3_U6/CO (FADDX1_HVT)                0.15 *    10.78 r
+  U0/full_conn/intadd_3_U5/CO (FADDX1_HVT)                0.15 *    10.93 r
+  U0/full_conn/intadd_3_U4/CO (FADDX1_HVT)                0.14 *    11.08 r
+  U0/full_conn/intadd_3_U3/CO (FADDX1_HVT)                0.15 *    11.22 r
+  U0/full_conn/intadd_3_U2/CO (FADDX1_HVT)                0.17 *    11.40 r
+  U0/full_conn/U781/Y (INVX0_HVT)                         0.06 *    11.46 f
+  U0/full_conn/U2836/Y (AO21X1_HVT)                       0.10 *    11.56 f
+  U0/full_conn/U2837/Y (OA221X1_HVT)                      0.09 *    11.66 f
+  U0/full_conn/U2838/SO (HADDX1_HVT)                      0.15 *    11.81 r
+  U0/full_conn/mac2_reg_31_/RSTB (DFFSSRX1_HVT)           0.00 *    11.81 r
+  data arrival time                                                 11.81
+
+  clock clk (rise edge)                                  12.00      12.00
+  clock network delay (propagated)                        0.66      12.66
+  U0/full_conn/mac2_reg_31_/CLK (DFFSSRX1_HVT)            0.00      12.66 r
+  library setup time                                     -0.13      12.53
+  data required time                                                12.53
+  --------------------------------------------------------------------------
+  data required time                                                12.53
+  data arrival time                                                -11.81
+  --------------------------------------------------------------------------
+  slack (MET)                                                        0.72
+
+
+1

@@ -168,6 +168,7 @@ assign dram_en_rd = ~state[IDX_IDLE];
 assign dram_en_wr = valid_bs2;
 
 /* input feature map register file */
+/*
 always@(posedge clk) begin
   if (en_ld_ifmap) begin
     ifmap[SIZE_PS1 - 1] <= data_in;
@@ -176,6 +177,18 @@ always@(posedge clk) begin
   end
   else if (valid_prod1) begin
     ifmap[SIZE_PS1 - 1] <= ifmap[0];
+    for (i = 0; i < SIZE_PS1 - 1; i = i+1)
+      ifmap[i] <= ifmap[i+1];
+  end
+end
+*/
+always@(posedge clk) begin
+  if (en_ld_ifmap) ifmap[SIZE_PS1 - 1] <= data_in;
+  else if (valid_prod1) ifmap[SIZE_PS1 - 1] <= ifmap[0];
+end
+
+always@(posedge clk) begin
+  if (en_ld_ifmap|valid_prod1) begin
     for (i = 0; i < SIZE_PS1 - 1; i = i+1)
       ifmap[i] <= ifmap[i+1];
   end
