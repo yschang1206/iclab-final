@@ -2,4 +2,4 @@
 
 ## Final Presentation
 
-* Slides: `iclab-final.pdf`
+* Slides: `iclab-final.pdf` (81 MB)
